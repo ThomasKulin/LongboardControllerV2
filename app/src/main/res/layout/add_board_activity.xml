@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/board_add_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="3dp"
+        android:theme="@style/ActionBar"
+        app:popupTheme="@style/ActionBar"/>
+
+    <TextView
+        android:id="@+id/add_board_connection_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/board_add_toolbar"
+        android:paddingLeft = "16dp"
+        android:paddingBottom = "16dp"
+        android:text="Connection"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/add_board_device_header"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_board_connection_header"
+        android:text = "Device"
+        android:paddingLeft="16dp"/>
+
+    <Spinner
+        android:id="@+id/add_board_bluetooth_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_board_connection_header"
+        android:layout_alignParentEnd="true"
+        android:textAlignment="textEnd"
+        android:paddingBottom="16dp"/>
+
+    <View style="@style/Divider"
+        android:id="@+id/add_board_divider1"
+        android:layout_below="@id/add_board_bluetooth_spinner"/>
+
+    <RelativeLayout
+        android:id="@+id/add_board_main_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_board_divider1">
+
+        <View
+            android:id="@+id/add_board_centerShim"
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:visibility="invisible"
+            android:layout_centerHorizontal="true"/>
+
+        <RelativeLayout
+            android:id="@+id/add_board_left_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/add_board_centerShim">
+
+            <TextView
+                android:id="@+id/add_board_name_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "8dp"
+                android:text="Name"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_board_version_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_name_header"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "16dp"
+                android:text="Version"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_board_motor_pulley_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_version_header"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "8dp"
+                android:text="Motor Pulley"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_board_wheel_pulley_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_motor_pulley_header"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "8dp"
+                android:text="Wheel Pulley"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_board_wheel_diameter_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_wheel_pulley_header"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "8dp"
+                android:text="Wheel Diameter"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/add_board_motor_poles_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_wheel_diameter_header"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:paddingTop = "8dp"
+                android:text="Motor Poles"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/add_board_right_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/add_board_centerShim">
+
+            <EditText
+                android:id="@+id/add_board_name_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="board name" />
+
+            <EditText
+                android:id="@+id/add_board_version_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_name_value"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="v1 or v2?" />
+
+            <EditText
+                android:id="@+id/add_board_motor_pulley_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_version_value"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="# of teeth" />
+
+            <EditText
+                android:id="@+id/add_board_wheel_pulley_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_motor_pulley_value"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="# of teeth" />
+
+            <EditText
+                android:id="@+id/add_board_wheel_diameter_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_wheel_pulley_value"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="diameter in mm" />
+
+            <EditText
+                android:id="@+id/add_board_motor_poles_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/add_board_wheel_diameter_value"
+                android:paddingLeft = "16dp"
+                android:paddingBottom = "16dp"
+                android:hint="# of motor poles"
+                android:text="14"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <View style="@style/Divider"
+        android:id="@+id/add_board_divider2"
+        android:layout_below="@id/add_board_main_container"
+        android:paddingTop="8dp"/>
+
+    <TextView
+        android:id="@+id/TV_add_board_battery_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_board_divider2"
+        android:paddingTop="16dp"
+        android:text="Battery Type"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:textStyle="bold"/>
+
+    <RadioGroup
+        android:id="@+id/add_board_battery_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TV_add_board_battery_selector"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_6s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="6s"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+        <RadioButton
+            android:id="@+id/radio_8s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="8s"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+        <RadioButton
+            android:id="@+id/radio_10s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10s"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+        <RadioButton
+            android:id="@+id/radio_12s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12s"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button_save_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Save"/>
+
+</RelativeLayout>

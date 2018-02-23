@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp">
+    <TextView
+        android:id="@+id/add_board_list_setting_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="parameter"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:paddingTop="15dp"/>
+    <EditText
+        android:id="@+id/add_board_list_setting_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:hint="hi" />
+</LinearLayout>

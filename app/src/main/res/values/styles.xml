@@ -1,0 +1,25 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/material_grey_100</item>
+        <item name="colorPrimaryDark">@color/material_grey_600</item>
+        <item name="colorAccent">@android:color/holo_orange_dark</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="ActionBar" parent="@style/ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@android:color/holo_orange_dark</item>
+        <item name="colorPrimary">@color/material_grey_50</item>
+        <item name="colorPrimaryDark">@color/material_grey_600</item>
+        <item name="android:itemBackground">@color/material_grey_50</item>
+    </style>
+
+    <style name="Theme.AppTheme.Light.NoActionBar" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
