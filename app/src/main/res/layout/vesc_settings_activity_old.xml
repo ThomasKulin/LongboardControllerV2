@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/vesc_settings_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="3dp"
+        android:theme="@style/ActionBar"
+        app:popupTheme="@style/ActionBar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/vesc_settings_toolbar"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/TV_motor_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:text= "Motor Type"
+                android:paddingBottom="8dp"/>
+
+
+            <RadioGroup
+                android:id="@+id/vesc_settings_motor_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_motor_type"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
+
+                <RadioButton
+                    android:id="@+id/radio_bldc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="30dp"
+                    android:text="BLDC"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+                <RadioButton
+                    android:id="@+id/radio_foc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FOC"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+            </RadioGroup>
+
+            <RelativeLayout
+                android:id="@+id/vesc_settings_main_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/vesc_settings_motor_selector">
+
+                <View
+                    android:id="@+id/vesc_settings_centerShim"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:visibility="invisible"
+                    android:layout_centerHorizontal="true"/>
+
+                <LinearLayout
+                    android:id="@+id/vesc_settings_left_panel"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/vesc_settings_centerShim">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:text="Current Limits"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10dp"
+                        android:text="Motor Max"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Motor Max Brake"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Battery Max"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Battery Min (regen)"/>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="Voltage Limits"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Minimum Input Voltage"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Maximum Input Voltage"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Battery Cutoff Start"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Battery Cutoff End"/>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="Temperature Limits"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="MOSFET Start"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="MOSFET End"/>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="RPM Limits (BLDC)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Limit ERPM"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Min ERPM"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Max ERPM"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Max ERPM at full brake"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:text="Max ERPM at full brake (current control mode)"/>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="Other Limits"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Min Duty Cycle"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="37dp"
+                        android:paddingTop="8dp"
+                        android:text="Max Duty Cycle"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/vesc_settings_right_panel"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/vesc_settings_centerShim">
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="28dp"
+                        android:hint="Max motor current (A)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Max regen current (A)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Max battery draw (A)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Max battery charge (A)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="37dp"
+                        android:hint="Lowest battery voltage (V)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Highest battery voltage (V)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Start cutting power (V)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Full cutoff (V)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="52dp"
+                        android:hint="Start thermal throttling (°C)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Full thermal shutdown (°C)"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="47dp"
+                        android:hint="MAKE CHECKBOX"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="not sure"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="not sure"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Max ERPM at full brake"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                        android:hint="Max ERPM at full brake"/>
+
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="47dp"
+                        android:hint="Min Duty Cycle"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Max Duty Cycle"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id= "@+id/vesc_settings_read_write"
+                android:layout_below="@id/vesc_settings_main_container">
+                <Button
+                    android:id="@+id/read_config_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Read Configuration"
+                    />
+                <Button
+                    android:id="@+id/write_config_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Write Configuration"
+                    android:layout_below="@id/read_config_button"
+                    />
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

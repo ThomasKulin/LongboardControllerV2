@@ -20,25 +20,6 @@
             android:theme="@style/ActionBar"
             app:popupTheme="@style/ActionBar"/>
 
-        <!--<TextView-->
-            <!--android:text="Thomas' Board"-->
-            <!--android:id="@+id/TV_board_name"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:gravity="center"-->
-            <!--android:layout_alignRight="@id/button_settings"-->
-            <!--android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />-->
-
-        <!--<ImageButton-->
-            <!--android:id="@+id/button_settings"-->
-            <!--android:src="@drawable/ic_action_name"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--style="?android:attr/borderlessButtonStyle" />-->
-
     </RelativeLayout>
 
     <RelativeLayout
@@ -214,6 +195,7 @@
             <View style="@style/Divider"/>
 
             <ImageButton
+                android:id = "@+id/button_send"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:scaleType="centerInside"

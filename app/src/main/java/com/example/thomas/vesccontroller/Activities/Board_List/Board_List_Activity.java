@@ -70,7 +70,7 @@ public class Board_List_Activity extends AppCompatActivity{
         updateList();
     }
     public void updateList(){
-        bp = SaveState.loadData(this).bp;
+        bp = SaveState.readFromFile(this);
         BoardListAdapter customAdapter = new BoardListAdapter(this, R.layout.board_list_item, bp);
         yourListView .setAdapter(customAdapter);
     }
@@ -134,11 +134,11 @@ public class Board_List_Activity extends AppCompatActivity{
             return v;
         }
         public void delete(BoardProfile boardProfile){
-            SaveState instance = SaveState.loadData(getContext().getApplicationContext());
-
+            List<BoardProfile> boardProfileList = SaveState.readFromFile(getContext().getApplicationContext());
             try {
-                instance.bp.remove(boardProfile);
-                SaveState.saveData(instance, getContext().getApplicationContext());
+                boardProfileList.remove(boardProfile);
+                SaveState.bp = boardProfileList;
+                SaveState.saveToFile(getContext().getApplicationContext());
                 Toast.makeText(getContext().getApplicationContext(), "Profile Deleted", Toast.LENGTH_SHORT)
                         .show();
             }catch(Exception e){
@@ -146,15 +146,14 @@ public class Board_List_Activity extends AppCompatActivity{
                         .show();
             }
             updateList();
-
         }
         public void selectProfile(BoardProfile bp){
-            SaveState instance = SaveState.loadData(getContext().getApplicationContext());
-
+            List<BoardProfile> boardProfileList= SaveState.readFromFile(getContext().getApplicationContext());
             try {
-                instance.bp.remove(bp);
-                instance.bp.add(0, bp);
-                SaveState.saveData(instance, getContext().getApplicationContext());
+                boardProfileList.remove(bp);
+                boardProfileList.add(0,bp);
+                SaveState.bp = boardProfileList;
+                SaveState.saveToFile(getContext().getApplicationContext());
                 Toast.makeText(getContext().getApplicationContext(), "Profile Selected", Toast.LENGTH_SHORT)
                         .show();
             }catch(Exception e){

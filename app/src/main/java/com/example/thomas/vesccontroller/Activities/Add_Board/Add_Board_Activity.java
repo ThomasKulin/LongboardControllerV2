@@ -1,6 +1,5 @@
 package com.example.thomas.vesccontroller.Activities.Add_Board;
 
-import android.app.LauncherActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -10,24 +9,16 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.thomas.vesccontroller.Helpers.Communications.BluetoothConnectionService;
 import com.example.thomas.vesccontroller.Helpers.BoardProfile;
 import com.example.thomas.vesccontroller.Helpers.SaveState;
 import com.example.thomas.vesccontroller.Helpers.listItem;
@@ -45,7 +36,7 @@ import java.util.Set;
 public class Add_Board_Activity  extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     List<listItem> params = new ArrayList<listItem>();
-    short batteryType;
+    byte cellCount;
     BluetoothDevice btDevice;
 
     BluetoothAdapter btAdapter;
@@ -97,16 +88,16 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch(checkedId) {
                     case R.id.radio_6s:
-                            batteryType = 6;
+                            cellCount = 6;
                         break;
                     case R.id.radio_8s:
-                            batteryType = 8;
+                            cellCount = 8;
                         break;
                     case R.id.radio_10s:
-                            batteryType = 10;
+                            cellCount = 10;
                         break;
                     case R.id.radio_12s:
-                            batteryType = 12;
+                            cellCount = 12;
                         break;
                 }
             }
@@ -144,8 +135,7 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
                 }
             }
             else{
-                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(intent, 1);
+                BluetoothConnectionService.enableBtPrompt(Add_Board_Activity.this);
             }
         }
 
@@ -191,7 +181,7 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
     private void save(){
         Context mContext = getApplicationContext();
         BoardProfile profile = new BoardProfile();
-        SaveState load = SaveState.loadData(mContext);
+        List<BoardProfile> load = SaveState.readFromFile(mContext);
 
         try{
             String name = board_name.getText().toString();
@@ -203,8 +193,9 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
 
             double ratio = (wheelDiameter*wheelPulley)/(motorPulley*2)*0.10471976;
             int poles = Integer.parseInt(motor_poles.getText().toString());
-            double minVolt = batteryType*3.5;
-            double maxVolt = batteryType*4.2;
+            //TODO add fields for min and max cell voltages
+            double minVolt = cellCount*3.5;
+            double maxVolt = cellCount*4.2;
 
             profile.setName(name);
             profile.setVersion(version);
@@ -212,10 +203,12 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
             profile.setMotorPoles(poles);
             profile.setMaxVoltage(maxVolt);
             profile.setMinVoltage(minVolt);
-            profile.setBtDevice(btDevice);
+            profile.setCellCount(cellCount);
+            profile.setBtDeviceAddress(btDevice.getAddress());
 
-            load.bp.add(profile);
-            SaveState.saveData(load, mContext);
+            load.add(profile);
+            SaveState.bp=load;
+            SaveState.saveToFile(mContext);
             finish();
         }catch(Exception e){
             Toast.makeText(mContext, "SAVE FAIELD", Toast.LENGTH_SHORT).show();
@@ -237,21 +230,12 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
                         break;
                 }
             }
-            else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-            }
-            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-            }
-            else if (BluetoothDevice.ACTION_FOUND.equals(action)){
-            }
-            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action))
-            {
-            }
-            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action))
-            {
-            }
-            else {
-            }
+            else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {}
+            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {}
+            else if (BluetoothDevice.ACTION_FOUND.equals(action)){}
+            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {}
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {}
+            else {}
         }
     };
-
 }

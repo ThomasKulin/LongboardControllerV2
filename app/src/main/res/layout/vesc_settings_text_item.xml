@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/vesc_text_item_main_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/controller_top_bar">
+
+        <View
+            android:id="@+id/text_item_centerShim"
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_centerHorizontal="true"/>
+
+        <RelativeLayout
+            android:id="@+id/text_item_left_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/controller_centerShim"
+            android:paddingLeft="24dp">
+
+            <TextView
+                android:id="@+id/TV_text_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DEFAULT:"
+                android:paddingTop="20dp"
+                android:paddingBottom="5dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/text_item_right_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/text_item_centerShim"
+            android:paddingRight="24dp">
+
+            <EditText
+                android:id="@+id/text_item_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop = "20dp"
+                android:paddingBottom = "16dp"
+                android:hint="Default"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

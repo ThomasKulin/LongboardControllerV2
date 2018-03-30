@@ -18,48 +18,17 @@
             android:theme="@style/ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-        <!--<ImageButton-->
-            <!--android:id="@+id/controller_button_back"-->
-            <!--android:src="@drawable/ic_controller_back"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:paddingLeft="-30dp"-->
-            <!--style="?android:attr/borderlessButtonStyle" />-->
-
-        <!--<TextView-->
-            <!--android:text="Thomas' Board"-->
-            <!--android:id="@+id/TV_controller_board_name"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:gravity="center"-->
-            <!--android:layout_alignRight="@id/button_settings"-->
-            <!--android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />-->
-
-        <!--<ImageButton-->
-            <!--android:id="@+id/controller_button_settings"-->
-            <!--android:src="@drawable/ic_action_name"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--style="?android:attr/borderlessButtonStyle" />-->
-
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/controller_main_container"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="125dp"
         android:layout_below="@id/controller_top_bar">
 
         <View
             android:id="@+id/controller_centerShim"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:visibility="invisible"
+            style="@style/VerticalDivider"
             android:layout_centerHorizontal="true"/>
 
         <RelativeLayout
@@ -68,29 +37,29 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/controller_centerShim">
 
-            <TextView
-                android:id="@+id/TV_controller_battery"
+            <RelativeLayout
+                android:id="@+id/controller_battery"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:text="BATTERY"
-                android:textStyle="bold"
-                android:gravity="center"/>
+                android:layout_height="125dp"
+                android:paddingRight="40dp">
 
-            <io.netopen.hotbitmapgg.library.view.RingProgressBar
-                android:id="@+id/progress_bar_controller_battery"
-                android:layout_below="@id/TV_controller_battery"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_centerInParent="true"
-                app:max="100"
-                app:ringColor="@android:color/white"
-                app:ringProgressColor="@color/colorAccent"
-                app:ringWidth="6dp"
-                app:style="STROKE"
-                app:textColor="@color/colorAccent"
-                app:textIsShow="true"
-                app:textSize="16sp" />
+                <ImageView
+                    android:id="@+id/image_view_controller_battery"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_battery_full_24dp" />
+                <TextView
+                    android:id="@+id/TV_controller_battery"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="100%"
+                    android:gravity="center"
+                    android:layout_alignTop="@id/image_view_controller_battery"
+                    android:layout_alignBottom="@id/image_view_controller_battery"
+                    android:layout_alignLeft="@id/image_view_controller_battery"
+                    android:layout_alignRight="@id/image_view_controller_battery"/>
+
+            </RelativeLayout>
 
         </RelativeLayout>
 
@@ -111,10 +80,10 @@
                 android:paddingBottom="5dp"/>
 
             <TextView
-                android:id="@+id/TV_current_speed"
+                android:id="@+id/TV_top_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SPEED:            0 KM/H"
+                android:text="TOP SPEED:            0 KM/H"
                 android:textStyle="bold"
                 android:paddingTop="20dp"
                 android:paddingBottom="5dp"/>
@@ -122,21 +91,46 @@
         </LinearLayout>
 
     </RelativeLayout>
-
-    <SeekBar
+    <RelativeLayout
+        android:id="@+id/speed_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/seekBar"
-        android:layout_marginTop="150dp"
-        android:padding="50dp"
-        android:rotation="270"
-        android:maxWidth="800dp"
-        android:minWidth="800dp"
-        android:max="2000"
-        android:progress="1000"
-        android:progressBackgroundTintMode="src_over"
-        android:visibility="visible"
-        android:layout_below="@id/controller_main_container"
-        android:paddingTop="200dp"/>
+        android:layout_below="@id/controller_main_container">
+
+        <View style="@style/Divider"/>
+
+        <TextView
+            android:id="@+id/TV_speed_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingTop="10dp"
+            android:text="0 KM/H"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/speed_indicator"
+        android:layout_marginTop="250dp">
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/seekBar_throttle"
+            android:padding="50dp"
+            android:rotation="270"
+            android:maxWidth="800dp"
+            android:minWidth="800dp"
+            android:max="200"
+            android:progress="100"
+            android:progressBackgroundTintMode="src_over"
+            android:visibility="visible"
+            android:paddingTop="200dp"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

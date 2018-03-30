@@ -4,8 +4,13 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="holo_orange_light">#ffaa49</color>
     <color name="holo_orange_dark">#ffff8800</color>
+    <color name="holo_orange_border">#fff</color>
     <color name="background_material_light">#303F9F</color>
     <color name="primary_dark_material_light">#FF4081</color>
+
+    <color name="disconnected">#ed4545</color>
+    <color name="connected">#31e400</color>
 
 </resources>

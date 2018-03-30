@@ -2,11 +2,13 @@ package com.example.thomas.vesccontroller.Helpers;
 
 import android.bluetooth.BluetoothDevice;
 
+import java.io.Serializable;
+
 /**
  * Created by Thomas on 2017-12-28.
  */
 
-public class BoardProfile {
+public class BoardProfile implements Serializable{
     //home
     private String name;
     private double version;
@@ -15,10 +17,11 @@ public class BoardProfile {
     private double maxSpeed;
 
     //parameters
-    private BluetoothDevice btDevice;
+    public String btDeviceAddress;
     public double wheelRatio; // (wheel pulley / motor pulley)*(wheeldiameter/2) * 1/60 * 2pi     ... converts motor rpm to velocity
     public double maxVoltage;
     public double minVoltage;
+    public byte cellCount;
     public int motorPoles;
     public int thresholdTemp;
     public int maxTemp;
@@ -33,10 +36,11 @@ public class BoardProfile {
         this.avgSpeed = 0.0;
         this. maxSpeed = 0.0;
 
-        this.btDevice = null;
+        this.btDeviceAddress = "00:00:00:00:00:00";
         this. wheelRatio = 1.0;
         this.maxVoltage = 25.2; //4.2 V/cell
         this.minVoltage = 21.0; //3.5 V/cell
+        this.cellCount = 6;
         this.motorPoles = 14;
         this.thresholdTemp = 70;
         this.maxTemp = 80;
@@ -44,8 +48,8 @@ public class BoardProfile {
         this.maxAccel = 40;
         this.maxRegen = 8;
     }
-    public BoardProfile(String name, double version, double totalDist, double avgSpeed, double maxSpeed, BluetoothDevice btDevice,
-                        double wheelRatio, double maxVoltage, double minVoltage,int motorPoles, int thresholdTemp,
+    public BoardProfile(String name, double version, double totalDist, double avgSpeed, double maxSpeed, String btDeviceAddress,
+                        double wheelRatio, double maxVoltage, double minVoltage, byte cellCount, int motorPoles, int thresholdTemp,
                         int maxTemp, boolean reverseEnabled, int maxAccel, int maxRegen){
         this.name = name;
         this.version = version;
@@ -53,10 +57,11 @@ public class BoardProfile {
         this.avgSpeed = avgSpeed;
         this.maxSpeed = maxSpeed;
 
-        this.btDevice = btDevice;
+        this.btDeviceAddress = btDeviceAddress;
         this.wheelRatio = wheelRatio;
         this.maxVoltage = maxVoltage;
         this.minVoltage = minVoltage;
+        this.cellCount = cellCount;
         this.motorPoles = motorPoles;
         this.thresholdTemp = thresholdTemp;
         this.maxTemp = maxTemp;
@@ -71,10 +76,11 @@ public class BoardProfile {
         this.avgSpeed = newBoard.avgSpeed;
         this.maxSpeed = newBoard.maxSpeed;
 
-        this.btDevice = newBoard.btDevice;
+        this.btDeviceAddress = newBoard.btDeviceAddress;
         this.wheelRatio = newBoard.wheelRatio;
         this.maxVoltage = newBoard.maxVoltage;
         this.minVoltage = newBoard.minVoltage;
+        this.cellCount = newBoard.cellCount;
         this.motorPoles = newBoard.motorPoles;
         this.thresholdTemp = newBoard.thresholdTemp;
         this.maxTemp = newBoard.maxTemp;
@@ -102,9 +108,9 @@ public class BoardProfile {
         if(maxSpeed>=0)
             this.maxSpeed=maxSpeed;
     }
-    public void setBtDevice(BluetoothDevice btDevice){
-        if(btDevice!=null)
-            this.btDevice=btDevice;
+    public void setBtDeviceAddress(String btDeviceAddress){
+        if(btDeviceAddress!=null)
+            this.btDeviceAddress=btDeviceAddress;
     }
     public void setWheelRatio(double wheelRatio){
         if(wheelRatio>0)
@@ -117,6 +123,10 @@ public class BoardProfile {
     public void setMinVoltage(double minVoltage){
         if(minVoltage>=0)
             this.minVoltage=minVoltage;
+    }
+    public void setCellCount(byte cellCount){
+        if(cellCount>=0)
+            this.cellCount=cellCount;
     }
     public void setMotorPoles(int motorPoles){
         if(motorPoles>=0)
@@ -156,8 +166,8 @@ public class BoardProfile {
     public double getMaxSpeed() {
         return this.maxSpeed;
     }
-    public BluetoothDevice getBtDevice(){
-        return this.btDevice;
+    public String getBtDeviceAddress(){
+        return this.btDeviceAddress;
     }
     public double getwheelRatio() {
         return this.wheelRatio;
@@ -167,6 +177,9 @@ public class BoardProfile {
     }
     public double getMinVoltage() {
         return this.minVoltage;
+    }
+    public byte getCellCount(){
+        return this.cellCount;
     }
     public int getMotorPoles() {
         return this.motorPoles;
@@ -185,5 +198,52 @@ public class BoardProfile {
     }
     public int getMaxRegen() {
         return this.maxRegen;
+    }
+
+//    @Override
+//    public boolean equals(Object profile){
+//        if(!(profile instanceof BoardProfile)) {
+//            return false;
+//        }
+//        BoardProfile profileB = (BoardProfile) profile;
+//        //long as check to see if everything is equal
+//        if (this.btDevice == null && profileB == null) {
+//            return true;
+//        }
+//        if (this.btDevice == null || profileB == null) {
+//            return false;
+//        }
+//        if(this.btDevice.equals(profileB.btDevice) && this.name.equals(profileB.name)&&this.version==profileB.version&&this.totalDist==profileB.totalDist&&
+//                this.avgSpeed==profileB.avgSpeed&&this.maxSpeed==profileB.maxSpeed&&this.wheelRatio==profileB.wheelRatio&&
+//                this.maxVoltage==profileB.maxVoltage&&this.minVoltage==profileB.minVoltage&&this.cellCount==profileB.cellCount&&
+//                this.motorPoles==profileB.motorPoles&&this.thresholdTemp==profileB.thresholdTemp&&this.maxTemp==profileB.maxTemp&&
+//                this.reverseEnabled==profileB.reverseEnabled&&this.maxAccel==profileB.maxAccel&&this.maxRegen==profileB.maxRegen){
+//            return true;
+//        }
+//        else{
+//            return false;
+//        }
+//    }
+
+    @Override
+    public boolean equals(Object profile){
+        if(!(profile instanceof BoardProfile)) {
+            return false;
+        }
+        BoardProfile profileB = (BoardProfile) profile;
+        //long as check to see if everything is equal
+        if (this.btDeviceAddress == null || profileB.btDeviceAddress == null) {
+            return false;
+        }
+        if(this.btDeviceAddress.equals(profileB.btDeviceAddress) && this.name.equals(profileB.name)&&this.version==profileB.version&&this.totalDist==profileB.totalDist&&
+                this.avgSpeed==profileB.avgSpeed&&this.maxSpeed==profileB.maxSpeed&&this.wheelRatio==profileB.wheelRatio&&
+                this.maxVoltage==profileB.maxVoltage&&this.minVoltage==profileB.minVoltage&&this.cellCount==profileB.cellCount&&
+                this.motorPoles==profileB.motorPoles&&this.thresholdTemp==profileB.thresholdTemp&&this.maxTemp==profileB.maxTemp&&
+                this.reverseEnabled==profileB.reverseEnabled&&this.maxAccel==profileB.maxAccel&&this.maxRegen==profileB.maxRegen){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
