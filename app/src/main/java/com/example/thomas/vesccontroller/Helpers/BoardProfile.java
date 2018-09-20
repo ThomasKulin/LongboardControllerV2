@@ -18,7 +18,7 @@ public class BoardProfile implements Serializable{
 
     //parameters
     public String btDeviceAddress;
-    public double wheelRatio; // (wheel pulley / motor pulley)*(wheeldiameter/2) * 1/60 * 2pi     ... converts motor rpm to velocity
+    public double wheelRatio; // (motor pulley / wheel pulley)*(wheeldiameter/2) * 1/60 * 2pi     ... converts motor rpm to velocity
     public double maxVoltage;
     public double minVoltage;
     public byte cellCount;

@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.thomas.vesccontroller.Activities.Board_Activity;
+import com.example.thomas.vesccontroller.Activities.Control_Activity;
+import com.example.thomas.vesccontroller.Activities.Vesc_Settings_Activity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,6 +37,8 @@ public class BluetoothConnectionService{
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
     private ConnectedThread mConnectedThread;
+
+    private boolean connected = false;
 
 
     public static void enableBtPrompt(Activity activity) {
@@ -82,7 +86,7 @@ public class BluetoothConnectionService{
                 // Connect to the remote device through the socket. This call blocks
                 // until it succeeds or throws an exception.
                 mmSocket.connect();
-                startConnectedThread(mmSocket, mmDevice);
+                connected = startConnectedThread(mmSocket, mmDevice);
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
@@ -108,7 +112,7 @@ public class BluetoothConnectionService{
 
     //----------------------------------------------------------------------------------------------
 
-    public void startConnectThread(BluetoothDevice device,UUID uuid){
+    public boolean startConnectThread(BluetoothDevice device,UUID uuid){
         final String TAG = "startConnectThread";
         Log.d(TAG, "startClient: Started.");
         ConnectThread client;
@@ -116,6 +120,7 @@ public class BluetoothConnectionService{
         deviceUUID = uuid;
         client  = new ConnectThread(device);
         client.start();
+        return connected;
         //mConnectThread = new ConnectThread(device);
         //mConnectThread.start();
     }
@@ -128,6 +133,7 @@ public class BluetoothConnectionService{
         private InputStream mmInStream;
         private OutputStream mmOutStream;
         private PacketTools.mc_values values;
+        private  PacketTools.mc_configuration configuration;
         private byte[] mmBuffer; // mmBuffer store for the stream
         private final String TAG = "ConnectedThread";
 
@@ -157,64 +163,87 @@ public class BluetoothConnectionService{
             mmBuffer = new byte[1024];
             boolean messageRead = false;
             int counter = 0;
-            int endMessage = 256;
-            int[] messageReceived = new int[256];
+            int endMessage = 1024;
+            int[] messageReceived = new int[1024];
             int lenPayload = 0;
             byte receive = 0;
+            boolean currentMessage = true;
 
             // Keep listening to the InputStream until an exception occurs.
-            while (true) {
-                try {
-                    receive = (byte) mmInStream.read(); //read one byte from input stream
-                    Board_Activity.connected = true;
-                } catch (IOException e) {
-                    Log.e(TAG, "BluetoothCOnnectionService: InputStream was disconnected");
-                    Board_Activity.connected = false;
-                    break;
-                }
-                messageReceived[counter++] = (int)receive & 0xFF; // convert unsigned byte to integer to avoid overflow
-                        if(counter == 2){ // messageReceived includes the payload type and size
-                            switch(messageReceived[0]){
-                                case 2:
-                                    endMessage = messageReceived[1] + 5; //payload size +2 for size + 3 for CRC and end
-                                    lenPayload = messageReceived[1];
-                                    break;
-                                case 3:
-                                    //ToDo: Add support for message handling with lenghts greater than 256 bytes;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        if (counter >= messageReceived.length)
-                        {
-                            break;
-                        }
-                        if (counter == endMessage && messageReceived[endMessage-1] == 3) { //end of packet reached (3 is stop bit)
-                            messageReceived[endMessage] = 0;
-                            messageRead = true;
-                            Log.d(TAG, "PacketTools: End of message reached!");
-                            break;
+            while(true) {
+                while (currentMessage) {
+                    try {
+                        receive = (byte) mmInStream.read(); //read one byte from input stream
+                        connected = true;
+                    } catch (IOException e) {
+                        Log.e(TAG, "BluetoothCOnnectionService: InputStream was disconnected");
+                        connected = false;
+                        currentMessage = false;
+                        break;
+                    }
+                    messageReceived[counter++] = (int) receive & 0xFF; // convert unsigned byte to integer to avoid overflow
+                    if (counter == 3) { // messageReceived includes the payload type and size
+                        switch (messageReceived[0]) {
+                            case 2:
+                                endMessage = messageReceived[1] + 5; //payload size +2 for size + 3 for CRC and end
+                                lenPayload = messageReceived[1] & 0xFF;
+                                break;
+                            case 3:
+                                //messagereceived[1] holds first 8 bits of length, messagereceived[2] holds the last 8 bits
+                                endMessage = ((messageReceived[1] & 0xFF) << 8) | (messageReceived[2] & 0xFF);
+                                lenPayload = endMessage;
+                                endMessage += 6; //payload size +2 for size + 3 for CRC and end
+                                break;
+                            default:
+                                break;
                         }
                     }
-                    boolean unpacked = false;
-                    if(messageRead){
-                        int len = messageReceived[1] & 0xFF;
-                        unpacked = PacketTools.unpackPayload(messageReceived, endMessage, len);
-                    }
-                    if(unpacked){
-                        values = PacketTools.processReadPacket(); //save the values received
-                        Board_Activity.updateValues(values);
-                        //reset packet info to accept next packet
-                        messageRead = false;
-                        counter = 0;
-                        endMessage = 256;
 
-                        for(int i = 0; i < 255; i++){
-                            messageReceived[i] = 0;
+                    if (counter >= messageReceived.length) {
+                        currentMessage = false;
+                        break;
+                    }
+                    if (counter == endMessage && messageReceived[endMessage - 1] == 3) { //end of packet reached (3 is stop bit)
+                        messageReceived[endMessage] = 0;
+                        messageRead = true;
+                        Log.d(TAG, "BluetoothConnectionService: End of message reached!");
+                        currentMessage = false;
+                        break;
+                    }
+                }
+                boolean unpacked = false;
+                if (messageRead) {
+                    unpacked = PacketTools.unpackPayload(messageReceived, endMessage, lenPayload);
+                }
+                if (unpacked) {
+                    switch (PacketTools.getPacketId()) {
+                        case COMM_GET_VALUES: {
+                            values = (PacketTools.mc_values) PacketTools.processReadPacket(); //save the values received
+                            Board_Activity.updateValues(values);
+                            Log.d(TAG, "BluetoothConnectionService: COMM_GET_VALUES received");
+                            break;
+                        }
+                        case COMM_GET_MCCONF: {
+                            configuration = (PacketTools.mc_configuration) PacketTools.processReadPacket();
+                            Vesc_Settings_Activity.updateValues(configuration);
+                            Log.d(TAG, "BluetoothConnectionService: COMM_GET_MCCONF received");
+                            break;
                         }
                     }
-                    else{}
+                    //reset packet info to accept next packet
+                    messageRead = false;
+                    counter = 0;
+                    endMessage = 1024;
+                    lenPayload = 0;
+                    receive = 0;
+                    currentMessage = true;
+
+                    for (int i = 0; i < messageReceived.length; i++) {
+                        messageReceived[i] = 0;
+                    }
+                } else {
+                }
+            }
         }
 
         // Call this from the main activity to send data to the remote device.
@@ -240,25 +269,27 @@ public class BluetoothConnectionService{
         }
 
         // Call this method from the main activity to shut down the connection.
-        public void cancel() {
+        public boolean cancel() {
             try {
                 mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Could not close the connect socket", e);
             }
+            return mmSocket.isConnected();
         }
     }
 
     //----------------------------------------------------------------------------------------------
 
-    private void startConnectedThread(BluetoothSocket mmSocket, BluetoothDevice mmDevice) {
+    private boolean startConnectedThread(BluetoothSocket mmSocket, BluetoothDevice mmDevice) {
         final String TAG = "StartConnectedThread";
         Log.d(TAG, "connected: Starting.");
 
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(mmSocket);
         mConnectedThread.start();
-        Board_Activity.connected = true;
+        Log.d("TAG", "THREAD IS ALIVE: "+ mConnectedThread.isAlive());
+        return mConnectedThread.isAlive();
     }
 
     /**
@@ -286,22 +317,14 @@ public class BluetoothConnectionService{
     }
 
     //end the bluetooth data stream
-    public void endConnection(){
+    public boolean endConnection(){
         try {
             //mConnectThread.cancel();
-            mConnectedThread.cancel();
-            Board_Activity.connected = false;
+            connected = mConnectedThread.cancel();
         }catch (Exception e){}
+        return connected;
     }
     public boolean isConnected(){
-        try {
-            if(mConnectedThread!=null)
-                return mConnectedThread.isAlive();
-            else
-                return false;
-        }catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
+        return connected;
     }
 }

@@ -191,7 +191,7 @@ public class Add_Board_Activity  extends AppCompatActivity implements AdapterVie
             int wheelPulley = Integer.parseInt(wheel_pulley.getText().toString());
             int wheelDiameter = Integer.parseInt(wheel_diameter.getText().toString());
 
-            double ratio = (wheelDiameter*wheelPulley)/(motorPulley*2)*0.10471976;
+            double ratio = ((double)wheelDiameter*(double)motorPulley)/((double)wheelPulley*1000d)*2d*3.141593d/60d;
             int poles = Integer.parseInt(motor_poles.getText().toString());
             //TODO add fields for min and max cell voltages
             double minVolt = cellCount*3.5;

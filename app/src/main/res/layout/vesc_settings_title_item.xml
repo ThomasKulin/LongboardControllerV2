@@ -15,7 +15,7 @@
                 android:layout_height="wrap_content"
                 android:text="DEFAULT:"
                 android:textStyle="bold"
-                android:paddingTop="20dp"
+                android:paddingTop="5dp"
                 android:paddingBottom="7dp"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 

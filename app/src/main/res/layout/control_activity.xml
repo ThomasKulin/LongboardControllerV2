@@ -68,7 +68,8 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/controller_centerShim">
+            android:layout_toRightOf="@id/controller_centerShim"
+            android:paddingLeft="20dp">
 
             <TextView
                 android:id="@+id/TV_travel_distance"
@@ -83,9 +84,18 @@
                 android:id="@+id/TV_top_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TOP SPEED:            0 KM/H"
+                android:text="TOP SPEED:   0 KM/H"
                 android:textStyle="bold"
-                android:paddingTop="20dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/TV_current"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CURRENT:       0 A"
+                android:textStyle="bold"
+                android:paddingTop="10dp"
                 android:paddingBottom="5dp"/>
 
         </LinearLayout>
@@ -115,7 +125,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/speed_indicator"
-        android:layout_marginTop="250dp">
+        android:layout_marginTop="0dp">
 
         <SeekBar
             android:layout_width="match_parent"

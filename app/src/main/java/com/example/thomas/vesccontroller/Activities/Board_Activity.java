@@ -2,8 +2,10 @@ package com.example.thomas.vesccontroller.Activities;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -41,9 +43,10 @@ import static java.lang.Thread.sleep;
 public class Board_Activity extends AppCompatActivity {
 
     static BoardProfile currentProfile;
-    TextView totalDistance;
-    TextView averageSpeed;
-    TextView maxSpeed;
+    static TextView hwVersion;
+    static TextView totalDistance;
+    static TextView averageSpeed;
+    static TextView maxSpeed;
     TextView connectionState;
     static RingProgressBar mRingProgressBar;
     ImageView longboardButton;
@@ -52,14 +55,17 @@ public class Board_Activity extends AppCompatActivity {
 
     SaveState save  = new SaveState();
     static short batteryLevel = 0; //battery percentage (0-100)
+    private static double voltages[] = new double[30];
 
     static BluetoothDevice btDevice;
     public static BluetoothConnectionService mBluetoothConnection;
     private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    IntentFilter connectionFilter;
     public static boolean connected = false;
-    private static PacketTools.mc_values values = new PacketTools.mc_values();
+    public static PacketTools.mc_values values = new PacketTools.mc_values();
     private static TimerTask refreshValTimer;
     private static Timer timer;
+
 
 
     @Override
@@ -67,6 +73,7 @@ public class Board_Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.board_activity);
 
+        hwVersion = (TextView) findViewById(R.id.TV_hw_version);
         totalDistance = (TextView) findViewById(R.id.TV_total_distance);
         averageSpeed = (TextView) findViewById(R.id.TV_average_speed);
         maxSpeed = (TextView) findViewById(R.id.TV_max_speed);
@@ -76,6 +83,11 @@ public class Board_Activity extends AppCompatActivity {
          * Bluetooth Connection
          */
         mBluetoothConnection = new BluetoothConnectionService(this);
+        connectionFilter = new IntentFilter();
+        connectionFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        connectionFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        connectionFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(mBluetoothReceiver,connectionFilter);
 
         /**
          * ACTION BAR
@@ -109,23 +121,18 @@ public class Board_Activity extends AppCompatActivity {
                     if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                         BluetoothConnectionService.enableBtPrompt(Board_Activity.this);
                     } else {
-                        if (connected) {
+                        if(connected) {
                             try {
                                 endBtConnection();
-                                connectionState.setText("DISCONNECTED");
-                                connectionState.setTextColor(getResources().getColor(R.color.disconnected));
-                                cancelTimer();
-                            } catch (Exception e) {
+                            }catch (Exception e){
                                 Log.d(TAG, "Connection State: Connected --> Disconnected FAILED");
                                 Toast.makeText(Board_Activity.this, "Failed to Disconnect", Toast.LENGTH_SHORT).show();
                             }
-                        } else {
+                        }
+                        else {
                             try {
                                 initiateBtConnection();
-                                connectionState.setText("CONNECTED");
-                                connectionState.setTextColor(getResources().getColor(R.color.connected));
-                                initializeTimer();
-                            } catch (Exception e) {
+                            }catch (Exception e){
                                 Log.d(TAG, "Connection State: Disconnected --> Connected FAILED");
                                 Toast.makeText(Board_Activity.this, "Failed to Connect", Toast.LENGTH_SHORT).show();
                             }
@@ -157,8 +164,8 @@ public class Board_Activity extends AppCompatActivity {
 
             @Override
             public void run() {
-                if(connected) {
-                    PacketTools.vescUartGetValue();
+                if(mBluetoothConnection.isConnected()) {
+                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);
                 }
             }
         };
@@ -168,19 +175,24 @@ public class Board_Activity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadProfile();
-        initializeTimer();
+        //initializeTimer();
+        registerReceiver(mBluetoothReceiver,connectionFilter);
     }
 
     @Override
     protected void onPause(){
         super.onPause();
         cancelTimer();
+        unregisterReceiver(mBluetoothReceiver);
+
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
         cancelTimer();
+        unregisterReceiver(mBluetoothReceiver);
+
     }
 
     /**
@@ -224,7 +236,6 @@ public class Board_Activity extends AppCompatActivity {
     private void loadProfile() { //find the first saved board profile
         Context mContext = getApplicationContext();
         BoardProfile profile = new BoardProfile();
-        //SaveState load = SaveState.loadData(mContext);
         List<BoardProfile> load = save.readFromFile(mContext);
 
         if (load == null) { //if there is no previous save
@@ -233,37 +244,37 @@ public class Board_Activity extends AppCompatActivity {
             //load = SaveState.loadData(mContext);
             load = save.readFromFile(mContext);
         }
-
-//        if (load.bp.size() == 0) { //if there is no existing board profile
-//            load.bp.add(profile); //add default profile
-//            SaveState.saveData(load, mContext);
-//        }
         if(load.size() ==0){
             load.add(profile);
             save.bp = load;
             save.saveToFile(mContext);
         }
-        //profile = load.bp.get(0);
         profile = load.get(0);
 
         //update views
         currentProfile = profile;
         getSupportActionBar().setTitle(currentProfile.getName()); //sets the name displayed at the top of the app
-        totalDistance.setText("" + currentProfile.getTotalDist());
-        averageSpeed.setText("" + currentProfile.getAvgSpeed());
-        maxSpeed.setText("" + currentProfile.getMaxSpeed());
+        hwVersion.setText("HARDWARE V" + currentProfile.getVersion());
+        totalDistance.setText(String.format("%.1f", (float)currentProfile.getTotalDist()/1000f));
+        averageSpeed.setText(String.format("%.1f", (float)currentProfile.getAvgSpeed()));
+        maxSpeed.setText(String.format("%.1f", (float)currentProfile.getMaxSpeed()));
         String deviceAddress = currentProfile.getBtDeviceAddress();
         btDevice = SaveState.getDevice(deviceAddress);
     }
 
     public static void updateValues(PacketTools.mc_values values) {
+        Board_Activity.values= values;
         byte cells = currentProfile.getCellCount();
         float vMin = (float) (currentProfile.getMinVoltage() / cells);
         float vMax = (float) (currentProfile.getMaxVoltage() / cells);
-        double batteryLevelFP = (values.v_in / cells);
-        if (batteryLevelFP > vMin && batteryLevelFP < vMax) {
-            batteryLevel = (short) (((double)(batteryLevelFP - vMin)) / ((double)(vMax - vMin)) * 100);
-        } else if (batteryLevelFP > vMax) {
+        double batteryLevelFP = (Board_Activity.values.v_in / cells);
+        double temp;
+        System.arraycopy(voltages,0,voltages,1,voltages.length-1);
+        voltages[0] = batteryLevelFP;
+        double filteredVoltage = smoothVoltage(voltages);
+        if (filteredVoltage > vMin && filteredVoltage < vMax) {
+            batteryLevel = (short) (((double)(filteredVoltage - vMin)) / ((double)(vMax - vMin)) * 100);
+        } else if (filteredVoltage > vMax) {
             batteryLevel = 100;
         } else
             batteryLevel = 0;
@@ -271,12 +282,12 @@ public class Board_Activity extends AppCompatActivity {
     }
 
 
-    private static void initiateBtConnection() {
-        mBluetoothConnection.startConnectThread(btDevice, MY_UUID_INSECURE);
+    private static boolean initiateBtConnection() {
+        return mBluetoothConnection.startConnectThread(btDevice, MY_UUID_INSECURE);
     }
 
-    private static void endBtConnection() {
-        mBluetoothConnection.endConnection();
+    private static boolean endBtConnection() {
+        return mBluetoothConnection.endConnection();
     }
 
     public static void writeBT(byte[] data) {
@@ -294,7 +305,7 @@ public class Board_Activity extends AppCompatActivity {
         try {
             Log.d("TAG", "GetValues Timer Initialized");
             timer = new Timer("getValues_Timer");//create a new Timer
-            timer.scheduleAtFixedRate(refreshValTimer, 500, 2000);//this line starts the timer at the same time its executed
+            timer.scheduleAtFixedRate(refreshValTimer, 100, 500);//this line starts the timer at the same time its executed
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -302,11 +313,49 @@ public class Board_Activity extends AppCompatActivity {
     private static void cancelTimer(){
         try {
             timer.cancel();
+            timer = null;
             Log.d("TAG", "GetValues Timer Canceled");
         }catch (Exception e){
             Log.d("TAG", "Failed to Cancel getValues Timer");
             e.printStackTrace();
         }
     }
+    public static double smoothVoltage(double values[]){
+        double value = values[0]; // start with the first input
+        double sum = 0;
+        int num = 0;
+        for (int i=1, len=values.length; i<len; ++i){
+            sum += values[i];
+            if(values[i] != 0){
+                num++;
+            }
+        }
+        sum /= num;
+        return sum;
+    }
+    private BroadcastReceiver mBluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                //Do something if connected
+                connected = true;
+                connectionState.setText("CONNECTED");
+                connectionState.setTextColor(getResources().getColor(R.color.connected));
+                initializeTimer();
+                Toast.makeText(getApplicationContext(), "BT Connected", Toast.LENGTH_SHORT).show();
+            }
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                //Do something if disconnected
+                connected = false;
+                connectionState.setText("DISCONNECTED");
+                connectionState.setTextColor(getResources().getColor(R.color.disconnected));
+                cancelTimer();
+                Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
+            }
+            //else if...
+        }
+    };
     //----------------------------------------------------------------------------------------------
 }

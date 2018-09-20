@@ -16,8 +16,23 @@
     <ListView
         android:id="@+id/vesc_settings_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/vesc_settings_toolbar"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/vesc_settings_toolbar"
+        android:layout_above="@id/read_config_button"
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
 
+    <Button
+        android:id="@+id/read_config_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Read Configuration"
+        android:layout_above="@id/write_config_button"/>
+    <Button
+        android:id="@+id/write_config_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Write Configuration"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
