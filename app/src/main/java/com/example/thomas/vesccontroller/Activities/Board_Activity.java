@@ -23,9 +23,11 @@ import com.example.thomas.vesccontroller.Helpers.Communications.BluetoothConnect
 import com.example.thomas.vesccontroller.Helpers.BoardProfile;
 import com.example.thomas.vesccontroller.Activities.Board_List.Board_List_Activity;
 import com.example.thomas.vesccontroller.Helpers.Communications.PacketTools;
+import com.example.thomas.vesccontroller.Helpers.DataLogger;
 import com.example.thomas.vesccontroller.R;
 import com.example.thomas.vesccontroller.Helpers.SaveState;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,9 +53,10 @@ public class Board_Activity extends AppCompatActivity {
     static RingProgressBar mRingProgressBar;
     ImageView longboardButton;
     ImageView sendButton;
-    String TAG = "Board_Activity";
+    private static final String TAG = "BoardActivity";
 
     SaveState save  = new SaveState();
+    static DataLogger log = new DataLogger();
     static short batteryLevel = 0; //battery percentage (0-100)
     private static double voltages[] = new double[30];
 
@@ -62,7 +65,9 @@ public class Board_Activity extends AppCompatActivity {
     private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     IntentFilter connectionFilter;
     public static boolean connected = false;
-    public static PacketTools.mc_values values = new PacketTools.mc_values();
+    public static PacketTools.mc_values values = new PacketTools.mc_values(); //master
+    public static PacketTools.mc_values values2 = new PacketTools.mc_values(); //slave
+    public static byte VescSelect = 0; //which ESC are we getting values from currently?
     private static TimerTask refreshValTimer;
     private static Timer timer;
 
@@ -165,7 +170,7 @@ public class Board_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);
+                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES); //Master
                 }
             }
         };
@@ -184,7 +189,6 @@ public class Board_Activity extends AppCompatActivity {
         super.onPause();
         cancelTimer();
         unregisterReceiver(mBluetoothReceiver);
-
     }
 
     @Override
@@ -192,7 +196,6 @@ public class Board_Activity extends AppCompatActivity {
         super.onDestroy();
         cancelTimer();
         unregisterReceiver(mBluetoothReceiver);
-
     }
 
     /**
@@ -263,22 +266,30 @@ public class Board_Activity extends AppCompatActivity {
     }
 
     public static void updateValues(PacketTools.mc_values values) {
-        Board_Activity.values= values;
-        byte cells = currentProfile.getCellCount();
-        float vMin = (float) (currentProfile.getMinVoltage() / cells);
-        float vMax = (float) (currentProfile.getMaxVoltage() / cells);
-        double batteryLevelFP = (Board_Activity.values.v_in / cells);
-        double temp;
-        System.arraycopy(voltages,0,voltages,1,voltages.length-1);
-        voltages[0] = batteryLevelFP;
-        double filteredVoltage = smoothVoltage(voltages);
-        if (filteredVoltage > vMin && filteredVoltage < vMax) {
-            batteryLevel = (short) (((double)(filteredVoltage - vMin)) / ((double)(vMax - vMin)) * 100);
-        } else if (filteredVoltage > vMax) {
-            batteryLevel = 100;
-        } else
-            batteryLevel = 0;
-        mRingProgressBar.setProgress(batteryLevel);
+        if (VescSelect == 0) {
+            Board_Activity.values = values;
+            Log.d(TAG, "Updated VESC 0 Params");
+            log.logData(values);
+            byte cells = currentProfile.getCellCount();
+            float vMin = (float) (currentProfile.getMinVoltage() / cells);
+            float vMax = (float) (currentProfile.getMaxVoltage() / cells);
+            double batteryLevelFP = (Board_Activity.values.v_in / cells);
+            double temp;
+            System.arraycopy(voltages, 0, voltages, 1, voltages.length - 1); //shit way of taking moving avg
+            voltages[0] = batteryLevelFP;
+            double filteredVoltage = smoothVoltage(voltages);
+            if (filteredVoltage > vMin && filteredVoltage < vMax) {
+                batteryLevel = (short) (((double) (filteredVoltage - vMin)) / ((double) (vMax - vMin)) * 100);
+            } else if (filteredVoltage > vMax) {
+                batteryLevel = 100;
+            } else
+                batteryLevel = 0;
+            mRingProgressBar.setProgress(batteryLevel);
+        }
+        else {
+            Board_Activity.values2 = values;
+            Log.d(TAG, "Updated VESC 1 Params");
+        }
     }
 
 
@@ -305,7 +316,7 @@ public class Board_Activity extends AppCompatActivity {
         try {
             Log.d("TAG", "GetValues Timer Initialized");
             timer = new Timer("getValues_Timer");//create a new Timer
-            timer.scheduleAtFixedRate(refreshValTimer, 100, 500);//this line starts the timer at the same time its executed
+            timer.scheduleAtFixedRate(refreshValTimer, 100, 100);//this line starts the timer at the same time its executed
         }catch (Exception e){
             e.printStackTrace();
         }

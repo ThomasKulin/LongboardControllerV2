@@ -2,6 +2,7 @@ package com.example.thomas.vesccontroller.Activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,15 +12,20 @@ import android.widget.TextView;
 
 import com.example.thomas.vesccontroller.Helpers.BoardProfile;
 import com.example.thomas.vesccontroller.Helpers.Communications.PacketTools;
+import com.example.thomas.vesccontroller.Helpers.DataLogger;
 import com.example.thomas.vesccontroller.Helpers.SaveState;
 import com.example.thomas.vesccontroller.R;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.example.thomas.vesccontroller.Activities.Board_Activity.VescSelect;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.batteryLevel;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.currentProfile;
+import static com.example.thomas.vesccontroller.Activities.Board_Activity.values2;
+//import static com.example.thomas.vesccontroller.Activities.Board_Activity.;
 
 
 /**
@@ -90,8 +96,15 @@ public class Control_Activity extends AppCompatActivity {
                     @Override
                     public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         throttleVal = progress - (throttleBar.getMax()/2); //get throttle from -100 to 100
+                        if(throttleVal<0){
+                            throttleVal = -1* (int) (Math.pow(throttleVal, 2)/100);
+                        }
+                        else{
+                            throttleVal = (int) (Math.pow(throttleVal, 2)/100);
+                        }
+                        
                         if(throttleVal>=0) {
-                            sendVal = ((float)throttleVal/100.0f)*60f;
+                            sendVal = ((float)throttleVal/100.0f)*40f;
                             Log.d("TAG", sendVal + "");
                         }
                         else{
@@ -119,7 +132,10 @@ public class Control_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(Board_Activity.mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);
+                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES); //Master
+
+                    //PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
+
                     runOnUiThread(new Runnable(){
 
                         @Override
@@ -137,7 +153,8 @@ public class Control_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(Board_Activity.mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartSetValue(sendVal, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT);
+                    PacketTools.vescUartSetValue(sendVal, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT); //Master
+                    PacketTools.vescUartSetValue(sendVal, PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
                 }
             }
         };
@@ -154,18 +171,29 @@ public class Control_Activity extends AppCompatActivity {
     protected void onPause(){
         super.onPause();
         cancelTimers();
-        saveLoggedData();
+        updateBoardStats();
+        try {
+            DataLogger.saveLogToFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
         cancelTimers();
-        saveLoggedData();
+        updateBoardStats();
+        try {
+            DataLogger.saveLogToFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //-------------------- functions and stuff -----------------------------------------------------
     public static void updateValues(PacketTools.mc_values values) {
+        float current_in = values.current_in*2; //This is terrible but I need to define a new COMM protocol to send params from both VESC properly
         //battery indicator
        if(batteryLevel==100)
            batteryIndicatorImage.setImageResource(R.drawable.ic_battery_full_24dp);
@@ -195,7 +223,7 @@ public class Control_Activity extends AppCompatActivity {
         speedText.setText(String.format("%.1f KM/H", speed));
 
         //Upper-right text indicators
-        if(speed > topSpeedVal && values.current_in > 7) {
+        if(speed > topSpeedVal && current_in > 4) {
             topSpeedVal = speed;
             topSpeed.setText(String.format("TOP SPEED:   %.1f KM/H", topSpeedVal));
         }
@@ -204,7 +232,7 @@ public class Control_Activity extends AppCompatActivity {
         }
         distanceVal = (float) ((values.tachometer_abs-distanceOffset)*Board_Activity.currentProfile.getwheelRatio());
         distance.setText(String.format("DISTANCE:     %.1f M",distanceVal));
-        currentVal = values.current_in;
+        currentVal = current_in;
         current.setText(String.format("CURRENT:       %.2f A", currentVal));
 
         if(speed > 1){ //threshold so we don't average all time where we aren't moving
@@ -233,7 +261,7 @@ public class Control_Activity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    private void saveLoggedData(){
+    private void updateBoardStats(){
         double totalAvgSpeed = Board_Activity.currentProfile.getAvgSpeed();
         double totalDistance = Board_Activity.currentProfile.getTotalDist();
         double totalTopSpeed = Board_Activity.currentProfile.getMaxSpeed();
@@ -288,7 +316,7 @@ public class Control_Activity extends AppCompatActivity {
 
         public void uncaughtException(Thread thread, Throwable exception) {
             Control_Activity.cancelTimers();
-//            Control_Activity.saveLoggedData();
+//            Control_Activity.updateBoardStats();
             Log.d("", "Control Activity: uncaught exception!");
 //            android.os.Process.killProcess(android.os.Process.myPid());
 //            System.exit(10);

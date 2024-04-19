@@ -249,16 +249,30 @@ public class PacketTools {
     }
 
     public static void vescUartGetValue(COMM_PACKET_ID packet_id){
-        byte[] command = new byte[1];
+        PassByReference index = new PassByReference(0);
+        byte[] command;
+
         switch (packet_id) {
             case COMM_GET_VALUES:
+                Board_Activity.VescSelect = 0;  //master
+                command = new byte[1];
                 command[0] = (byte) COMM_PACKET_ID.COMM_GET_VALUES.ordinal();
+                packSendPayload(command, 1);
+                break;
+            case COMM_FORWARD_CAN:
+                Board_Activity.VescSelect = 1; //slave
+                command = new byte[3];
+                payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_FORWARD_CAN.ordinal();
+                payload[index.tempInt++] = 1;  //hard coding for slave CAN ID = 1
+                command[0] = (byte) COMM_PACKET_ID.COMM_GET_VALUES.ordinal();
+                packSendPayload(command, 3);
                 break;
             case COMM_GET_MCCONF:
+                command = new byte[1];
                 command[0] = (byte) COMM_PACKET_ID.COMM_GET_MCCONF.ordinal();
+                packSendPayload(command, 1);
                 break;
         }
-        packSendPayload(command, 1);
     }
 
     public static void vescUartSetValue(Object value, COMM_PACKET_ID type){
@@ -272,6 +286,17 @@ public class PacketTools {
             case COMM_SET_CURRENT: {
                 len = 5;
                 payload = new byte[len];
+                payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_SET_CURRENT.ordinal();
+                buffer_append_int32(payload, (int) ((float) value * 1000), index);
+                packSendPayload(payload, len);
+                break;
+            }
+            case COMM_FORWARD_CAN: {
+                len = 7;
+                payload = new byte[len];
+                payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_FORWARD_CAN.ordinal();
+                payload[index.tempInt++] = 1;  //hard coding for slave CAN ID = 1
+
                 payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_SET_CURRENT.ordinal();
                 buffer_append_int32(payload, (int) ((float) value * 1000), index);
                 packSendPayload(payload, len);
