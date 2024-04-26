@@ -133,6 +133,7 @@ public class BluetoothConnectionService{
         private InputStream mmInStream;
         private OutputStream mmOutStream;
         private PacketTools.mc_values values;
+        private PacketTools.mc_states states;
         private  PacketTools.mc_configuration configuration;
         private byte[] mmBuffer; // mmBuffer store for the stream
         private final String TAG = "ConnectedThread";
@@ -221,6 +222,12 @@ public class BluetoothConnectionService{
                             values = (PacketTools.mc_values) PacketTools.processReadPacket(); //save the values received
                             Board_Activity.updateValues(values);
                             Log.d(TAG, "BluetoothConnectionService: COMM_GET_VALUES received");
+                            break;
+                        }
+                        case COMM_GET_STATES: {
+                            states = (PacketTools.mc_states) PacketTools.processReadPacket(); //save the values received
+                            Board_Activity.updateStates(states);
+                            Log.d(TAG, "BluetoothConnectionService: COMM_GET_STATES received");
                             break;
                         }
                         case COMM_GET_MCCONF: {

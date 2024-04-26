@@ -91,6 +91,19 @@ public class PacketTools {
                 resetPacket();
                 return values;
             }
+            case COMM_GET_STATES: { //packet contains value data
+                mc_states states = new mc_states();
+                states.phi = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.phi_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.psi = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.psi_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.theta = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.theta_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.hdg = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.hdg_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                resetPacket();
+                return states;
+            }
             case COMM_GET_MCCONF: {
                 mc_configuration configuration = new mc_configuration();
                 configuration.pwm_mode = mc_pwm_mode.values()[payload2[index.tempInt++]];
@@ -901,7 +914,62 @@ public class PacketTools {
         COMM_FORWARD_CAN,
         COMM_SET_CHUCK_DATA,
         COMM_CUSTOM_APP_DATA,
-        COMM_NRF_START_PAIRING
+        COMM_NRF_START_PAIRING,
+        COMM_GPD_SET_FSW,
+        COMM_GPD_BUFFER_NOTIFY,
+        COMM_GPD_BUFFER_SIZE_LEFT,
+        COMM_GPD_FILL_BUFFER,
+        COMM_GPD_OUTPUT_SAMPLE,
+        COMM_GPD_SET_MODE,
+        COMM_GPD_FILL_BUFFER_INT8,
+        COMM_GPD_FILL_BUFFER_INT16,
+        COMM_GPD_SET_BUFFER_INT_SCALE,
+        COMM_GET_VALUES_SETUP,
+        COMM_SET_MCCONF_TEMP,
+        COMM_SET_MCCONF_TEMP_SETUP,
+        COMM_GET_VALUES_SELECTIVE,
+        COMM_GET_VALUES_SETUP_SELECTIVE,
+        COMM_EXT_NRF_PRESENT,
+        COMM_EXT_NRF_ESB_SET_CH_ADDR,
+        COMM_EXT_NRF_ESB_SEND_DATA,
+        COMM_EXT_NRF_ESB_RX_DATA,
+        COMM_EXT_NRF_SET_ENABLED,
+        COMM_DETECT_MOTOR_FLUX_LINKAGE_OPENLOOP,
+        COMM_DETECT_APPLY_ALL_FOC,
+        COMM_JUMP_TO_BOOTLOADER_ALL_CAN,
+        COMM_ERASE_NEW_APP_ALL_CAN,
+        COMM_WRITE_NEW_APP_DATA_ALL_CAN,
+        COMM_PING_CAN,
+        COMM_APP_DISABLE_OUTPUT,
+        COMM_TERMINAL_CMD_SYNC,
+        COMM_GET_IMU_DATA,
+        COMM_BM_CONNECT,
+        COMM_BM_ERASE_FLASH_ALL,
+        COMM_BM_WRITE_FLASH,
+        COMM_BM_REBOOT,
+        COMM_BM_DISCONNECT,
+        COMM_BM_MAP_PINS_DEFAULT,
+        COMM_BM_MAP_PINS_NRF5X,
+        COMM_ERASE_BOOTLOADER,
+        COMM_ERASE_BOOTLOADER_ALL_CAN,
+        COMM_PLOT_INIT,
+        COMM_PLOT_DATA,
+        COMM_PLOT_ADD_GRAPH,
+        COMM_PLOT_SET_GRAPH,
+        COMM_GET_DECODED_BALANCE,
+        COMM_BM_MEM_READ,
+        COMM_WRITE_NEW_APP_DATA_LZO,
+        COMM_WRITE_NEW_APP_DATA_ALL_CAN_LZO,
+        COMM_BM_WRITE_FLASH_LZO,
+        COMM_SET_CURRENT_REL,
+        COMM_CAN_FWD_FRAME,
+        COMM_SET_BATTERY_CUT,
+        COMM_SET_BLE_NAME,
+        COMM_SET_BLE_PIN,
+        COMM_SET_CAN_MODE,
+        COMM_GET_IMU_CALIBRATION,
+        COMM_GET_MCCONF_TEMP,
+        COMM_GET_STATES
     }
 
     // Logged fault data
@@ -982,6 +1050,16 @@ public class PacketTools {
         public float pid_pos;
     }
 
+    public static class mc_states {
+       public float phi;
+       public float phi_dot;
+       public float psi;
+       public float psi_dot;
+       public float theta;
+       public float theta_dot;
+       public float hdg;
+       public float hdg_dot;
+    }
     public static class bldcMeasure { // type used for old MC configuration
         public float temp_mos1;
         public float temp_mos2;

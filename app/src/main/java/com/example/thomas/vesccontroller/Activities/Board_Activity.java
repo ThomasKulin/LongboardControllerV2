@@ -67,6 +67,7 @@ public class Board_Activity extends AppCompatActivity {
     public static boolean connected = false;
     public static PacketTools.mc_values values = new PacketTools.mc_values(); //master
     public static PacketTools.mc_values values2 = new PacketTools.mc_values(); //slave
+    public static PacketTools.mc_states states = new PacketTools.mc_states();
     public static byte VescSelect = 0; //which ESC are we getting values from currently?
     private static TimerTask refreshValTimer;
     private static Timer timer;
@@ -290,6 +291,12 @@ public class Board_Activity extends AppCompatActivity {
             Board_Activity.values2 = values;
             Log.d(TAG, "Updated VESC 1 Params");
         }
+    }
+
+    public static void updateStates(PacketTools.mc_states states) {
+        Board_Activity.states = states;
+        Log.d(TAG, "Updated System States");
+//        log.logData(values);
     }
 
 

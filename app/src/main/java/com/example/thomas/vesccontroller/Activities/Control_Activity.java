@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -27,6 +30,8 @@ import static com.example.thomas.vesccontroller.Activities.Board_Activity.curren
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.values2;
 //import static com.example.thomas.vesccontroller.Activities.Board_Activity.;
 
+import io.github.controlwear.virtual.joystick.android.JoystickView;
+
 
 /**
  * Created by Thomas on 2018-03-25.
@@ -38,6 +43,8 @@ public class Control_Activity extends AppCompatActivity {
     static boolean first = true;
     int throttleVal = 0;
     float sendVal = 0f;
+    float commonMode = 0;
+    float differential = 0;
     static float currentVal = 0f;
     int motorMaxCurrent = 60;
     int motorMinCurrent = -40;
@@ -55,6 +62,24 @@ public class Control_Activity extends AppCompatActivity {
     static TextView distance;
     static TextView topSpeed;
     static TextView current;
+
+    // TextViews for sensor data
+    static TextView phiValue;
+    static TextView phiDotValue;
+    static TextView psiValue;
+    static TextView psiDotValue;
+    static TextView thetaValue;
+    static TextView thetaDotValue;
+    static TextView hdgValue;
+    static TextView hdgDotValue;
+
+    static TextView commonModeTextView;
+    static TextView differentialTextView;
+    static EditText cmLimitValue;
+    static EditText diffLimitValue;
+    private int cmLimit = 40; // Initialize with default value
+    private int diffLimit = 20; // Initialize with default value
+
 
     private static TimerTask readValTimerTask;
     private static TimerTask sendValTimerTask;
@@ -85,45 +110,145 @@ public class Control_Activity extends AppCompatActivity {
         topSpeed = (TextView) findViewById(R.id.TV_top_speed);
         current = (TextView) findViewById(R.id.TV_current);
 
+        commonModeTextView = (TextView) findViewById(R.id.textViewCommonMode);
+        differentialTextView = (TextView) findViewById(R.id.textViewDifferential);
+        cmLimitValue = (EditText) findViewById(R.id.CM_limit_value);
+        diffLimitValue = (EditText) findViewById(R.id.Diff_limit_value);
+
+        phiValue = (TextView) findViewById(R.id.phi_value);
+        phiDotValue = (TextView) findViewById(R.id.phi_dot_value);
+        psiValue = (TextView) findViewById(R.id.psi_value);
+        psiDotValue = (TextView) findViewById(R.id.psi_dot_value);
+        thetaValue = (TextView) findViewById(R.id.theta_value);
+        thetaDotValue = (TextView) findViewById(R.id.theta_dot_value);
+        hdgValue = (TextView) findViewById(R.id.hdg_value);
+        hdgDotValue = (TextView) findViewById(R.id.hdg_dot_value);
+
+
         /**
          * THROTTLE BAR
          */
-        throttleBar = (SeekBar) findViewById(R.id.seekBar_throttle);
-        throttleBar.setProgress(throttleBar.getMax() / 2);
-        throttleBar.setOnSeekBarChangeListener(
-                new SeekBar.OnSeekBarChangeListener() {
+//        throttleBar = (SeekBar) findViewById(R.id.seekBar_throttle);
+//        throttleBar.setProgress(throttleBar.getMax() / 2);
+//        throttleBar.setOnSeekBarChangeListener(
+//                new SeekBar.OnSeekBarChangeListener() {
+//
+//                    @Override
+//                    public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                        throttleVal = progress - (throttleBar.getMax()/2); //get throttle from -100 to 100
+//                        if(throttleVal<0){
+//                            throttleVal = -1* (int) (Math.pow(throttleVal, 2)/100);
+//                        }
+//                        else{
+//                            throttleVal = (int) (Math.pow(throttleVal, 2)/100);
+//                        }
+//
+//                        if(throttleVal>=0) {
+//                            sendVal = ((float)throttleVal/100.0f)*40f;
+//                            Log.d("TAG", sendVal + "");
+//                        }
+//                        else{
+//                            sendVal = ((float)throttleVal/100.0f)*40f;
+//                            Log.d("TAG", sendVal + "");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                        sendEnable = true;
+//                    }
+//
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                        seekBar.setProgress(seekBar.getMax() / 2);
+//                        sendEnable = false;
+//                    }
+//                });
 
-                    @Override
-                    public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        throttleVal = progress - (throttleBar.getMax()/2); //get throttle from -100 to 100
-                        if(throttleVal<0){
-                            throttleVal = -1* (int) (Math.pow(throttleVal, 2)/100);
-                        }
-                        else{
-                            throttleVal = (int) (Math.pow(throttleVal, 2)/100);
-                        }
-                        
-                        if(throttleVal>=0) {
-                            sendVal = ((float)throttleVal/100.0f)*40f;
-                            Log.d("TAG", sendVal + "");
-                        }
-                        else{
-                            sendVal = ((float)throttleVal/100.0f)*40f;
-                            Log.d("TAG", sendVal + "");
-                        }
-                    }
+        JoystickView joystickView = (JoystickView) findViewById(R.id.joystickView);
+        joystickView.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+                // Convert to radians for calculations
+                double angleRadians = Math.toRadians(angle);
 
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        sendEnable = true;
-                    }
+                // Cartesian coordinates
+                double x = strength * Math.cos(angleRadians);
+                double y = strength * Math.sin(angleRadians);
 
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        seekBar.setProgress(seekBar.getMax() / 2);
-                        sendEnable = false;
-                    }
-                });
+                // Use as common mode and differential
+                if(y<0){
+                    commonMode = -1* (float) (Math.pow(y, 2)/10000)*cmLimit;
+                    Log.d("TAG", commonMode + "");
+                }
+                else{
+                    commonMode = (float) (Math.pow(y, 2)/10000)*cmLimit;
+                    Log.d("TAG", commonMode + "");
+                }
+                if(x<0){
+                    differential = -1* (float) (Math.pow(x, 2)/10000)*diffLimit;
+                    Log.d("TAG", differential + "");
+                }
+                else{
+                    differential = (float) (Math.pow(x, 2)/10000)*diffLimit;
+                    Log.d("TAG", differential + "");
+                }
+
+                // Update the text views
+                commonModeTextView.setText("Common Mode: " + commonMode);
+                differentialTextView.setText("Differential: " + differential);
+            }
+        });
+
+        cmLimitValue.setText(String.valueOf(cmLimit));
+        diffLimitValue.setText(String.valueOf(diffLimit));
+
+        // Setup TextWatcher for CM Limit EditText
+        cmLimitValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Code here will execute before the text is changed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Code here executes as the user is typing
+                // For example, validating input or enabling/disabling a button based on the input
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    cmLimit = Integer.parseInt(s.toString());
+                } catch (NumberFormatException e) {
+                    cmLimit = 40; // Default value or handle error
+                }
+            }
+        });
+
+        // Setup TextWatcher for Diff Limit EditText
+        diffLimitValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Optionally handle actions before text changes
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Handle text changes in real-time
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Update variable after text changed
+                try {
+                    diffLimit = Integer.parseInt(s.toString());
+                } catch (NumberFormatException e) {
+                    diffLimit = 20; // Default value or handle error
+                }
+            }
+        });
+
         /**
          * timer tasks
          */
@@ -142,6 +267,7 @@ public class Control_Activity extends AppCompatActivity {
                         public void run(){
                             // update ui here
                             updateValues(Board_Activity.values);
+                            updateStates(Board_Activity.states);
                         }
                     });
 
@@ -153,8 +279,11 @@ public class Control_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(Board_Activity.mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartSetValue(sendVal, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT); //Master
-                    PacketTools.vescUartSetValue(sendVal, PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
+                    float currentLeftMotor = commonMode + differential;
+                    float currentRightMotor = commonMode - differential;
+
+                    PacketTools.vescUartSetValue(currentRightMotor, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT); //Master
+                    PacketTools.vescUartSetValue(currentLeftMotor, PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
                 }
             }
         };
@@ -243,6 +372,17 @@ public class Control_Activity extends AppCompatActivity {
         distancePrev = distanceVal;
         first = false;
     }
+    public static void updateStates(PacketTools.mc_states states) {
+        phiValue.setText(""+states.phi);
+        phiDotValue.setText(""+states.phi_dot);
+        psiValue.setText(""+states.psi);
+        psiDotValue.setText(""+states.psi_dot);
+        thetaValue.setText(""+states.theta);
+        thetaDotValue.setText(""+states.theta_dot);
+        hdgValue.setText(""+states.hdg);
+        hdgDotValue.setText(""+states.hdg_dot);
+    }
+
     private static void initializeTimers(){
         try {
             sendValTimer = new Timer("setValues_Timer");

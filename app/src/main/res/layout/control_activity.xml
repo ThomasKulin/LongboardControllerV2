@@ -119,6 +119,58 @@
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
             android:textStyle="bold"/>
 
+        <TextView
+            android:id="@+id/textViewCommonMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Common Mode: " />
+
+        <TextView
+            android:id="@+id/textViewDifferential"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewCommonMode"
+            android:text="Differential: " />
+
+        <TableLayout
+            android:id="@+id/table_sensorReadouts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true">
+
+            <!-- Row 1 -->
+            <TableRow>
+                <TextView android:text="Phi:" />
+                <TextView android:id="@+id/phi_value" />
+                <TextView android:text="Psi:" />
+                <TextView android:id="@+id/psi_value" />
+            </TableRow>
+
+            <!-- Row 2 -->
+            <TableRow>
+                <TextView android:text="Phi Dot:" />
+                <TextView android:id="@+id/phi_dot_value" />
+                <TextView android:text="Psi Dot:" />
+                <TextView android:id="@+id/psi_dot_value" />
+            </TableRow>
+
+            <!-- Row 3 -->
+            <TableRow>
+                <TextView android:text="Theta:" />
+                <TextView android:id="@+id/theta_value" />
+                <TextView android:text="Hdg:" />
+                <TextView android:id="@+id/hdg_value" />
+            </TableRow>
+
+            <!-- Row 4 -->
+            <TableRow>
+                <TextView android:text="Theta Dot:" />
+                <TextView android:id="@+id/theta_dot_value" />
+                <TextView android:text="Hdg Dot:" />
+                <TextView android:id="@+id/hdg_dot_value" />
+            </TableRow>
+        </TableLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -127,19 +179,48 @@
         android:layout_below="@id/speed_indicator"
         android:layout_marginTop="0dp">
 
-        <SeekBar
+<!--        <SeekBar-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="fill_parent"-->
+<!--            android:id="@+id/seekBar_throttle"-->
+<!--            android:padding="50dp"-->
+<!--            android:rotation="270"-->
+<!--            android:maxWidth="800dp"-->
+<!--            android:minWidth="800dp"-->
+<!--            android:max="200"-->
+<!--            android:progress="100"-->
+<!--            android:progressBackgroundTintMode="src_over"-->
+<!--            android:visibility="visible"-->
+<!--            android:paddingTop="200dp"/>-->
+
+        <io.github.controlwear.virtual.joystick.android.JoystickView
+            android:id="@+id/joystickView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:JV_autoReCenterButton="true"
+            app:JV_backgroundColor="#FFCDD2D2"
+            app:JV_borderColor="#FF3F51B5"
+            app:JV_borderWidth="6dp"
+            app:JV_buttonColor="#FF3F51B5"
+            app:JV_fixedCenter="true" />
+
+        <EditText
+            android:id="@+id/CM_limit_value"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/seekBar_throttle"
-            android:padding="50dp"
-            android:rotation="270"
-            android:maxWidth="800dp"
-            android:minWidth="800dp"
-            android:max="200"
-            android:progress="100"
-            android:progressBackgroundTintMode="src_over"
-            android:visibility="visible"
-            android:paddingTop="200dp"/>
+            android:layout_height="wrap_content"
+            android:hint="40"
+            android:layout_below="@+id/joystickView"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+        <EditText
+            android:id="@+id/Diff_limit_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="20"
+            android:layout_below="@+id/CM_limit_value"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
+
+
 
     </RelativeLayout>
 
