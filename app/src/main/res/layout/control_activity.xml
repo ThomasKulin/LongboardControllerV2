@@ -113,9 +113,9 @@
             android:id="@+id/TV_speed_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:paddingTop="10dp"
             android:text="0 KM/H"
+            android:layout_below="@+id/textViewDifferential"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
             android:textStyle="bold"/>
 
