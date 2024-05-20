@@ -225,7 +225,7 @@ public class BluetoothConnectionService{
                             break;
                         }
                         case COMM_GET_STATES: {
-                            states = (PacketTools.mc_states) PacketTools.processReadPacket(); //save the values received
+                            states = (PacketTools.mc_states) PacketTools.processReadPacket(); //save the states received
                             Board_Activity.updateStates(states);
                             Log.d(TAG, "BluetoothConnectionService: COMM_GET_STATES received");
                             break;

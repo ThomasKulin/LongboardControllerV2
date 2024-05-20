@@ -171,7 +171,10 @@ public class Board_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES); //Master
+//                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES); //Master
+//                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN);
+                    if (Board_Activity.VescSelect==1){PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);} //Master
+                    else if(Board_Activity.VescSelect==0){PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN);} //Slave
                 }
             }
         };
@@ -267,36 +270,42 @@ public class Board_Activity extends AppCompatActivity {
     }
 
     public static void updateValues(PacketTools.mc_values values) {
-        if (VescSelect == 0) {
+
+        byte cells = currentProfile.getCellCount();
+        float vMin = (float) (currentProfile.getMinVoltage() / cells);
+        float vMax = (float) (currentProfile.getMaxVoltage() / cells);
+        double batteryLevelFP = (Board_Activity.values.v_in / cells);
+        double temp;
+        System.arraycopy(voltages, 0, voltages, 1, voltages.length - 1); //shit way of taking moving avg
+        voltages[0] = batteryLevelFP;
+        double filteredVoltage = smoothVoltage(voltages);
+        if (filteredVoltage > vMin && filteredVoltage < vMax) {
+            batteryLevel = (short) (((double) (filteredVoltage - vMin)) / ((double) (vMax - vMin)) * 100);
+        } else if (filteredVoltage > vMax) {
+            batteryLevel = 100;
+        } else
+            batteryLevel = 0;
+        mRingProgressBar.setProgress(batteryLevel);
+
+        if (values.controller_id==1) {
             Board_Activity.values = values;
-            Log.d(TAG, "Updated VESC 0 Params");
-            log.logData(values);
-            byte cells = currentProfile.getCellCount();
-            float vMin = (float) (currentProfile.getMinVoltage() / cells);
-            float vMax = (float) (currentProfile.getMaxVoltage() / cells);
-            double batteryLevelFP = (Board_Activity.values.v_in / cells);
-            double temp;
-            System.arraycopy(voltages, 0, voltages, 1, voltages.length - 1); //shit way of taking moving avg
-            voltages[0] = batteryLevelFP;
-            double filteredVoltage = smoothVoltage(voltages);
-            if (filteredVoltage > vMin && filteredVoltage < vMax) {
-                batteryLevel = (short) (((double) (filteredVoltage - vMin)) / ((double) (vMax - vMin)) * 100);
-            } else if (filteredVoltage > vMax) {
-                batteryLevel = 100;
-            } else
-                batteryLevel = 0;
-            mRingProgressBar.setProgress(batteryLevel);
-        }
-        else {
-            Board_Activity.values2 = values;
             Log.d(TAG, "Updated VESC 1 Params");
+            log.logData(values, null, null, Control_Activity.command);
         }
+        else if (values.controller_id==2) {
+            Board_Activity.values2 = values;
+            Log.d(TAG, "Updated VESC 2 Params");
+            log.logData(null, values2, null, Control_Activity.command);
+        }
+
+//        Log.d(TAG, "Updated motor commands");
+//        log.logData(null, null, null, Control_Activity.command);
     }
 
     public static void updateStates(PacketTools.mc_states states) {
         Board_Activity.states = states;
         Log.d(TAG, "Updated System States");
-//        log.logData(values);
+        log.logData(null, null, states, null);
     }
 
 

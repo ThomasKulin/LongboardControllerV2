@@ -88,19 +88,20 @@ public class PacketTools {
                 values.tachometer_abs = buffer_get_int32(payload2, index);
                 values.fault_code = mc_fault_code.values()[payload2[index.tempInt++]];
                 values.pid_pos = buffer_get_float32(payload2, (float) 1e6, index);
+                values.controller_id = payload2[index.tempInt++];
                 resetPacket();
                 return values;
             }
             case COMM_GET_STATES: { //packet contains value data
                 mc_states states = new mc_states();
-                states.phi = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.phi_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.psi = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.psi_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.theta = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.theta_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.hdg = buffer.buffer_get_float32(payload2, (float) 1e3, index);
-                states.hdg_dot = buffer.buffer_get_float32(payload2, (float) 1e3, index);
+                states.phi = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.phi_dot = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.psi = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.psi_dot = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.theta = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.theta_dot = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.hdg = buffer.buffer_get_float32(payload2, (float) 1e4, index);
+                states.hdg_dot = buffer.buffer_get_float32(payload2, (float) 1e4, index);
                 resetPacket();
                 return states;
             }
@@ -275,9 +276,9 @@ public class PacketTools {
             case COMM_FORWARD_CAN:
                 Board_Activity.VescSelect = 1; //slave
                 command = new byte[3];
-                payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_FORWARD_CAN.ordinal();
-                payload[index.tempInt++] = 1;  //hard coding for slave CAN ID = 1
-                command[0] = (byte) COMM_PACKET_ID.COMM_GET_VALUES.ordinal();
+                command[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_FORWARD_CAN.ordinal();
+                command[index.tempInt++] = 2;  //hard coding for slave CAN ID = 2
+                command[2] = (byte) COMM_PACKET_ID.COMM_GET_VALUES.ordinal();
                 packSendPayload(command, 3);
                 break;
             case COMM_GET_MCCONF:
@@ -308,7 +309,7 @@ public class PacketTools {
                 len = 7;
                 payload = new byte[len];
                 payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_FORWARD_CAN.ordinal();
-                payload[index.tempInt++] = 1;  //hard coding for slave CAN ID = 1
+                payload[index.tempInt++] = 2;  //hard coding for slave CAN ID = 2
 
                 payload[index.tempInt++] = (byte) COMM_PACKET_ID.COMM_SET_CURRENT.ordinal();
                 buffer_append_int32(payload, (int) ((float) value * 1000), index);
@@ -1048,6 +1049,7 @@ public class PacketTools {
         public int tachometer_abs;
         public mc_fault_code fault_code;
         public float pid_pos;
+        public int controller_id;
     }
 
     public static class mc_states {

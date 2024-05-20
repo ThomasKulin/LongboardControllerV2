@@ -27,6 +27,7 @@ import java.util.TimerTask;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.VescSelect;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.batteryLevel;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.currentProfile;
+import static com.example.thomas.vesccontroller.Activities.Board_Activity.log;
 import static com.example.thomas.vesccontroller.Activities.Board_Activity.values2;
 //import static com.example.thomas.vesccontroller.Activities.Board_Activity.;
 
@@ -39,12 +40,12 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 
 public class Control_Activity extends AppCompatActivity {
 
+    private static final String TAG = "ControlActivity";
     boolean sendEnable = false;
     static boolean first = true;
     int throttleVal = 0;
     float sendVal = 0f;
-    float commonMode = 0;
-    float differential = 0;
+    public static commands command = new commands();
     static float currentVal = 0f;
     int motorMaxCurrent = 60;
     int motorMinCurrent = -40;
@@ -178,25 +179,25 @@ public class Control_Activity extends AppCompatActivity {
 
                 // Use as common mode and differential
                 if(y<0){
-                    commonMode = -1* (float) (Math.pow(y, 2)/10000)*cmLimit;
-                    Log.d("TAG", commonMode + "");
+                    command.commonModeCMD = -1* (float) (Math.pow(y, 2)/10000)*cmLimit;
+                    Log.d("TAG", command.commonModeCMD + "");
                 }
                 else{
-                    commonMode = (float) (Math.pow(y, 2)/10000)*cmLimit;
-                    Log.d("TAG", commonMode + "");
+                    command.commonModeCMD = (float) (Math.pow(y, 2)/10000)*cmLimit;
+                    Log.d("TAG", command.commonModeCMD + "");
                 }
                 if(x<0){
-                    differential = -1* (float) (Math.pow(x, 2)/10000)*diffLimit;
-                    Log.d("TAG", differential + "");
+                    command.differentialCMD = -1* (float) (Math.pow(x, 2)/10000)*diffLimit;
+                    Log.d("TAG", command.differentialCMD + "");
                 }
                 else{
-                    differential = (float) (Math.pow(x, 2)/10000)*diffLimit;
-                    Log.d("TAG", differential + "");
+                    command.differentialCMD = (float) (Math.pow(x, 2)/10000)*diffLimit;
+                    Log.d("TAG", command.differentialCMD + "");
                 }
 
                 // Update the text views
-                commonModeTextView.setText("Common Mode: " + commonMode);
-                differentialTextView.setText("Differential: " + differential);
+                commonModeTextView.setText("Common Mode: " + command.commonModeCMD);
+                differentialTextView.setText("Differential: " + command.differentialCMD);
             }
         });
 
@@ -257,10 +258,11 @@ public class Control_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(Board_Activity.mBluetoothConnection.isConnected()) {
-                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES); //Master
+                    if (Board_Activity.VescSelect==1){PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);} //Master
+                    else if(Board_Activity.VescSelect==0){PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN);} //Slave
 
-                    //PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
-
+//                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_GET_VALUES);
+//                    PacketTools.vescUartGetValue(PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN);
                     runOnUiThread(new Runnable(){
 
                         @Override
@@ -279,11 +281,12 @@ public class Control_Activity extends AppCompatActivity {
             @Override
             public void run() {
                 if(Board_Activity.mBluetoothConnection.isConnected()) {
-                    float currentLeftMotor = commonMode + differential;
-                    float currentRightMotor = commonMode - differential;
+                    command.currentLeftMotor = command.commonModeCMD + command.differentialCMD;
+                    command.currentRightMotor = command.commonModeCMD - command.differentialCMD;
 
-                    PacketTools.vescUartSetValue(currentRightMotor, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT); //Master
-                    PacketTools.vescUartSetValue(currentLeftMotor, PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
+                    PacketTools.vescUartSetValue(command.currentRightMotor, PacketTools.COMM_PACKET_ID.COMM_SET_CURRENT); //Master
+                    PacketTools.vescUartSetValue(command.currentLeftMotor, PacketTools.COMM_PACKET_ID.COMM_FORWARD_CAN); //Slave
+
                 }
             }
         };
@@ -302,7 +305,7 @@ public class Control_Activity extends AppCompatActivity {
         cancelTimers();
         updateBoardStats();
         try {
-            DataLogger.saveLogToFile();
+            Board_Activity.log.saveLogToFile(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -314,7 +317,7 @@ public class Control_Activity extends AppCompatActivity {
         cancelTimers();
         updateBoardStats();
         try {
-            DataLogger.saveLogToFile();
+            Board_Activity.log.saveLogToFile(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -386,7 +389,7 @@ public class Control_Activity extends AppCompatActivity {
     private static void initializeTimers(){
         try {
             sendValTimer = new Timer("setValues_Timer");
-            sendValTimer.scheduleAtFixedRate(sendValTimerTask, 50, 100);
+            sendValTimer.scheduleAtFixedRate(sendValTimerTask, 0, 100);
             readValTimer = new Timer("getValues_Timer");
             readValTimer.scheduleAtFixedRate(readValTimerTask, 50, 100);
         }catch (Exception e){
@@ -464,4 +467,16 @@ public class Control_Activity extends AppCompatActivity {
         }
     }
     //----------------------------------------------------------------------------------------------
+    public static class commands {
+        public float commonModeCMD;
+        public float differentialCMD;
+        public float currentLeftMotor;
+        public float currentRightMotor;
+        public commands(){
+            commonModeCMD = 0;
+            differentialCMD = 0;
+            currentLeftMotor = 0;
+            currentRightMotor = 0;
+        }
+    }
 }
