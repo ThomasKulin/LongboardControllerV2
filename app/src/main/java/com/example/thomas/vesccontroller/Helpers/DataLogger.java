@@ -29,9 +29,9 @@ public class DataLogger {
 
     public static ArrayList<String[]> log = new ArrayList<String[]>();
 
-    public static void logData(PacketTools.mc_values values, PacketTools.mc_values values2, PacketTools.mc_states states, Control_Activity.commands command){
+    public static void logData(PacketTools.mc_values values, PacketTools.mc_values values2, PacketTools.mc_states states, Control_Activity.commands command, Control_Activity.control control){
         long time = System.currentTimeMillis();
-        log_values data = new log_values(time, values, values2, states, command);
+        log_values data = new log_values(time, values, values2, states, command, control);
         log.add(data.toArray());
     }
     public static void saveLogToFile(Context context) throws IOException {
@@ -54,7 +54,7 @@ public class DataLogger {
 
         File file = new File(filePath + fileName);
         CSVWriter writer = new CSVWriter(new FileWriter(file));
-        String[] header = {"timestamp", "commonMode", "differential", "currentLeftMotor", "currentRightMotor", "v_in", "temp_mos", "current_motor", "current_in", "rpm", "duty_now", "tachometer", "tachometer_abs", "v_in_2", "temp_mos_2", "current_motor_2", "current_in_2", "rpm_2", "duty_now_2", "tachometer_2", "tachometer_abs_2", "phi", "phi_dot", "psi", "psi_dot", "theta", "theta_dot", "hdg", "hdg_dot"};
+        String[] header = {"timestamp", "throttle", "control enabled", "control strength", "psi limit", "theta limit", "fx", "fy", "commonMode", "differential", "currentLeftMotor", "currentRightMotor", "v_in", "temp_mos", "current_motor", "current_in", "rpm", "duty_now", "tachometer", "tachometer_abs", "v_in_2", "temp_mos_2", "current_motor_2", "current_in_2", "rpm_2", "duty_now_2", "tachometer_2", "tachometer_abs_2", "phi", "phi_dot", "psi", "psi_dot", "theta", "theta_dot", "hdg", "hdg_dot"};
         writer.writeNext(header);
 
         List<String[]> toWrite = new ArrayList<>();
@@ -74,6 +74,13 @@ public class DataLogger {
 
     public static class log_values{
         public String timestamp;
+        public String throttle;
+        public String controlEnabled;
+        public String controlStrength;
+        public String psiLimit;
+        public String thetaLimit;
+        public String fx;
+        public String fy;
         public String commonMode;
         public String differential;
         public String currentLeftMotor;
@@ -103,20 +110,39 @@ public class DataLogger {
         public String hdg;
         public String hdg_dot;
 
-        public log_values(long time, PacketTools.mc_values values, PacketTools.mc_values values2, PacketTools.mc_states state, Control_Activity.commands command){
+        public log_values(long time, PacketTools.mc_values values, PacketTools.mc_values values2, PacketTools.mc_states state, Control_Activity.commands command, Control_Activity.control control){
             timestamp = Long.toString(time);
 
             if (command != null) {
-                commonMode = Float.toString(command.commonModeCMD);
-                differential = Float.toString(command.differentialCMD);
+                throttle = Float.toString(command.commonModeCMD);
                 currentLeftMotor = Float.toString(command.currentLeftMotor);
                 currentRightMotor = Float.toString(command.currentRightMotor);
             }
             else{
-                commonMode = "";
-                differential = "";
+                throttle = "";
                 currentLeftMotor = "";
                 currentRightMotor = "";
+            }
+
+            if (control != null) {
+                controlEnabled = Boolean.toString(control.controlEnabled);
+                controlStrength = Float.toString(control.controlStrength);
+                psiLimit = Float.toString(control.psiLimit);
+                thetaLimit = Float.toString(control.thetaLimit);
+                commonMode = Float.toString(control.commonModeCtrl);
+                differential = Float.toString(control.differentialCtrl);
+                fx = Float.toString(control.fx);
+                fy = Float.toString(control.fy);
+            }
+            else{
+                controlEnabled = "";
+                controlStrength = "";
+                psiLimit = "";
+                thetaLimit = "";
+                commonMode = "";
+                differential = "";
+                fx = "";
+                fy = "";
             }
 
             if (values != null) {
@@ -184,15 +210,8 @@ public class DataLogger {
 
         }
 
-        public String toCsvRow() {
-
-            return Stream.of(v_in, temp_mos, current_motor, current_in, rpm, duty_now, tachometer, tachometer_abs, phi, phi_dot, psi, psi_dot, theta, theta_dot, hdg, hdg_dot)
-                    .map(value -> value.replaceAll("\"", "\"\""))
-                    .map(value -> Stream.of("\"", ",").anyMatch(value::contains) ? "\"" + value + "\"" : value)
-                    .collect(Collectors.joining(","));
-        }
         public String[] toArray(){
-            String[] arr = {timestamp, commonMode, differential, currentLeftMotor, currentRightMotor, v_in, temp_mos, current_motor, current_in, rpm, duty_now, tachometer, tachometer_abs, v_in_2, temp_mos_2, current_motor_2, current_in_2, rpm_2, duty_now_2, tachometer_2, tachometer_abs_2, phi, phi_dot, psi, psi_dot, theta, theta_dot, hdg, hdg_dot};
+            String[] arr = {timestamp, throttle, controlEnabled, controlStrength, psiLimit, thetaLimit, fx, fy, commonMode, differential, currentLeftMotor, currentRightMotor, v_in, temp_mos, current_motor, current_in, rpm, duty_now, tachometer, tachometer_abs, v_in_2, temp_mos_2, current_motor_2, current_in_2, rpm_2, duty_now_2, tachometer_2, tachometer_abs_2, phi, phi_dot, psi, psi_dot, theta, theta_dot, hdg, hdg_dot};
             return arr;
         }
     }

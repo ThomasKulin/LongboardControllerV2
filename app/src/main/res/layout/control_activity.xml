@@ -115,7 +115,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:text="0 KM/H"
-            android:layout_below="@+id/textViewDifferential"
+            android:layout_below="@+id/textViewDifferentialCtrl"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
             android:textStyle="bold"/>
 
@@ -131,6 +131,20 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/textViewCommonMode"
             android:text="Differential: " />
+        <TextView
+            android:id="@+id/textViewCommonModeCtrl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewDifferential"
+            android:text="Common Mode Control: 0" />
+
+        <TextView
+            android:id="@+id/textViewDifferentialCtrl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewCommonModeCtrl"
+            android:text="Differential Control: 0"/>
+
 
         <TableLayout
             android:id="@+id/table_sensorReadouts"
@@ -169,57 +183,74 @@
                 <TextView android:text="Hdg Dot:" />
                 <TextView android:id="@+id/hdg_dot_value" />
             </TableRow>
+            <!-- Row 5 -->
+            <TableRow>
+                <TextView android:text="fx:" />
+                <TextView android:id="@+id/fx_value" />
+                <TextView android:text="fy:" />
+                <TextView android:id="@+id/fy_value" />
+            </TableRow>
         </TableLayout>
 
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/speed_indicator"
         android:layout_marginTop="0dp">
 
-<!--        <SeekBar-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="fill_parent"-->
-<!--            android:id="@+id/seekBar_throttle"-->
-<!--            android:padding="50dp"-->
-<!--            android:rotation="270"-->
-<!--            android:maxWidth="800dp"-->
-<!--            android:minWidth="800dp"-->
-<!--            android:max="200"-->
-<!--            android:progress="100"-->
-<!--            android:progressBackgroundTintMode="src_over"-->
-<!--            android:visibility="visible"-->
-<!--            android:paddingTop="200dp"/>-->
+        <SeekBar
+            android:id="@+id/seekBar_throttle"
+            android:layout_width="match_parent"
+            android:layout_height="330dp"
+            android:max="200"
+            android:maxWidth="800dp"
+            android:minWidth="400dp"
+            android:padding="50dp"
+            android:layout_marginTop="32dp"
+            android:paddingBottom="110dp"
+            android:progress="100"
+            android:progressBackgroundTintMode="src_over"
+            android:rotation="270"
+            android:visibility="visible" />
 
-        <io.github.controlwear.virtual.joystick.android.JoystickView
-            android:id="@+id/joystickView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:JV_autoReCenterButton="true"
-            app:JV_backgroundColor="#FFCDD2D2"
-            app:JV_borderColor="#FF3F51B5"
-            app:JV_borderWidth="6dp"
-            app:JV_buttonColor="#FF3F51B5"
-            app:JV_fixedCenter="true" />
+<!--        <io.github.controlwear.virtual.joystick.android.JoystickView-->
+<!--            android:id="@+id/joystickView"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:JV_autoReCenterButton="true"-->
+<!--            app:JV_backgroundColor="#FFCDD2D2"-->
+<!--            app:JV_borderColor="#FF3F51B5"-->
+<!--            app:JV_borderWidth="6dp"-->
+<!--            app:JV_buttonColor="#FF3F51B5"-->
+<!--            app:JV_fixedCenter="true" />-->
 
         <EditText
-            android:id="@+id/CM_limit_value"
+            android:id="@+id/psi_limit_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="40"
-            android:layout_below="@+id/joystickView"
+            android:layout_below="@+id/seekBar_throttle"
+            android:layout_marginTop="32dp"
+            android:hint="psi limit"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+
+        <EditText
+            android:id="@+id/theta_limit_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="theta limit"
+            android:layout_below="@+id/psi_limit_value"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
 
         <EditText
-            android:id="@+id/Diff_limit_value"
+            android:id="@+id/control_strength_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="20"
-            android:layout_below="@+id/CM_limit_value"
+            android:hint="control strength"
+            android:layout_below="@+id/theta_limit_value"
+            android:layout_alignParentBottom="true"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"/>
-
 
 
     </RelativeLayout>

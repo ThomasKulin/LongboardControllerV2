@@ -290,12 +290,12 @@ public class Board_Activity extends AppCompatActivity {
         if (values.controller_id==1) {
             Board_Activity.values = values;
             Log.d(TAG, "Updated VESC 1 Params");
-            log.logData(values, null, null, Control_Activity.command);
+            log.logData(values, null, null, Control_Activity.command, null);
         }
         else if (values.controller_id==2) {
             Board_Activity.values2 = values;
             Log.d(TAG, "Updated VESC 2 Params");
-            log.logData(null, values2, null, Control_Activity.command);
+            log.logData(null, values2, null, Control_Activity.command, null);
         }
 
 //        Log.d(TAG, "Updated motor commands");
@@ -305,7 +305,7 @@ public class Board_Activity extends AppCompatActivity {
     public static void updateStates(PacketTools.mc_states states) {
         Board_Activity.states = states;
         Log.d(TAG, "Updated System States");
-        log.logData(null, null, states, null);
+        log.logData(null, null, states, null, Control_Activity.control);
     }
 
 
