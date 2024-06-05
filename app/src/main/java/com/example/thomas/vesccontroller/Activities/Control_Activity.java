@@ -475,7 +475,7 @@ public class Control_Activity extends AppCompatActivity {
 
 
         double fx = (-0.5 * (10 * ((36.624520729487024 * x + 0.27861843412132048 * phi + 16510.451050942986 * theta - 3.2004724026257469 * psi + 133.76411335652477 * x_dot - 0.20022883155884946 * phi_dot + 1090.6635460300026 * theta_dot - 0.56388233721281655 * psi_dot) * ((-1 * cos(theta)) / (0.90000000000000002 * (4 + 90 * Math.pow(sin(theta), 2))))) + ((10 * (32.433095947025691 * x + 0.031999224782588702 * phi + 1752.320146257649 * theta - 2.1895584321499855 * psi + 86.359313073578377 * x_dot + 0.12290772267221448 * phi_dot + 133.76411335652477 * theta_dot - 2.6298100506676696 * psi_dot)) / (4 + 90 * Math.pow(sin(theta), 2)))));
-        fx = fx/20;
+        fx = fx/40;
         double fy = (-0.5 * (10 * (( - 0.21704087080691076 * x + 106.78915861262998 * phi - 0.3699874871493381 * theta + 61662.985856405969 * psi - 2.6298100506676696 * x_dot + 8.0362227522587357 * phi_dot - 0.56388233721281655 * theta_dot + 8355.1423483685739 * psi_dot) * (cos(psi) / (72.900000000000006 * Math.pow(cos(theta), 2)))) + ((32.433095947025691 * x + 0.031999224782588702 * phi + 1752.320146257649 * theta - 2.1895584321499855 * psi + 86.359313073578377 * x_dot + 0.12290772267221448 * phi_dot + 133.76411335652477 * theta_dot - 2.6298100506676696 * psi_dot) * ((0 / (4 + 90 * Math.pow(sin(theta), 2))) + 10 * ((sin(theta) * sin(psi) * cos(theta)) / (0.90000000000000002 * (4 + 90 * Math.pow(sin(theta), 2)))))) + 10 * ((36.624520729487024 * x + 0.27861843412132048 * phi + 16510.451050942986 * theta - 3.2004724026257469 * psi + 133.76411335652477 * x_dot - 0.20022883155884946 * phi_dot + 1090.6635460300026 * theta_dot - 0.56388233721281655 * psi_dot) * ((-94 * sin(theta) * sin(psi)) / (72.900000000000006 * (4 + 90 * Math.pow(sin(theta), 2)))))));
         fxValue.setText(""+String.format("%.2f", fx));
         fyValue.setText(""+String.format("%.2f", fy));
@@ -500,7 +500,7 @@ public class Control_Activity extends AppCompatActivity {
         double Iq = Te/(0.75*P*psi_m);  // Common mode motor current required to achieve fx
         control.commonModeCtrl = (float) Iq * control.controlStrength/100f;
 
-        x_dot = 5.5;//values.rpm/Board_Activity.currentProfile.getMotorPoles() * Board_Activity.currentProfile.getwheelRatio(); //speed in M/S
+        x_dot = values.rpm/Board_Activity.currentProfile.getMotorPoles() * Board_Activity.currentProfile.getwheelRatio(); //speed in M/S
         double Spd_Kmph = x_dot * 3.6f;
         double turningRateDeg = fy/90f * x_dot;
         control.differentialCtrl = (float) (signum(turningRateDeg) * 180f/Spd_Kmph * log10(abs(turningRateDeg)+1)) * control.controlStrength/100f;
